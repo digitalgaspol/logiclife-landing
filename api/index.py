@@ -16,7 +16,7 @@ app.secret_key = 'rahasia_negara_bos_nexa'
 MERCHANT_CODE = "DS27970"    # 👈 Ganti Kode Merchant
 API_KEY = "26d1b203f71980414c28ee77e249b4b8"    # 👈 Ganti API Key Sandbox
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry"
-ADMIN_PIN = "M3isy@851"            # 👈 PIN Admin
+ADMIN_PIN = "M3isy4851"            # 👈 PIN Admin
 
 # ==============================================================================
 # 🔥 INIT FIREBASE
@@ -36,7 +36,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ==============================================================================
-# 🌐 HALAMAN PUBLIK
+# 🌐 HALAMAN PUBLIK (FIX GAMBAR UTUH)
 # ==============================================================================
 
 @app.route('/')
@@ -125,13 +125,15 @@ def home():
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 {% for item in products %}
                 <div class="glass bg-white/80 rounded-3xl shadow-xl overflow-hidden flex flex-col hover:-translate-y-2 transition duration-300 group">
-                    <div class="h-64 w-full bg-gray-100 relative overflow-hidden">
-                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
-                        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm text-indigo-900">
+                    
+                    <div class="h-64 w-full bg-white relative overflow-hidden p-4 flex items-center justify-center">
+                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-contain transition duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                        
+                        <div class="absolute top-4 right-4 bg-indigo-50/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm text-indigo-900 border border-indigo-100">
                             {{ item.prefix }} Premium
                         </div>
                     </div>
-                    <div class="p-8 flex-grow flex flex-col">
+                    <div class="p-8 flex-grow flex flex-col bg-white/50">
                         <h2 class="text-2xl font-extrabold mb-1 text-slate-900">{{ item.name }}</h2>
                         <p class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
                         <p class="text-slate-500 text-sm mb-6">{{ item.description }}</p>
@@ -142,7 +144,7 @@ def home():
                             </div>
                             <form action="/checkout" method="POST">
                                 <input type="hidden" name="product_id" value="{{ item.id }}">
-                                <button type="submit" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold py-4 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all flex justify-center items-center gap-2">
+                                <button type="submit" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold py-4 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all flex justify-center items-center gap-2 shadow-lg">
                                     BELI SEKARANG 🚀
                                 </button>
                             </form>
@@ -178,7 +180,7 @@ def home():
     ''', products=products_data, contact=contact_data)
 
 # ==============================================================================
-# 🔐 ADMIN PANEL (DASHBOARD)
+# 🔐 ADMIN PANEL
 # ==============================================================================
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -263,19 +265,15 @@ def admin():
                     {% for item in products %}
                     <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-3">
                         <div class="flex gap-4 items-center">
-                            <img src="{{ item.image_url }}" class="w-16 h-16 object-cover rounded-lg bg-gray-100">
+                            <img src="{{ item.image_url }}" class="w-16 h-16 object-contain rounded-lg bg-gray-100 p-1">
                             <div class="flex-grow">
                                 <h3 class="font-bold text-slate-800">{{ item.name }}</h3>
                                 <p class="text-slate-500 text-xs font-bold">Rp {{ item.price }}</p>
                             </div>
                         </div>
                         <div class="flex gap-2 mt-2">
-                            <a href="/admin/edit/{{ item.id }}" class="bg-yellow-100 text-yellow-700 py-2 px-4 rounded-lg hover:bg-yellow-200 font-bold text-xs flex-grow text-center">
-                                ✏️ EDIT
-                            </a>
-                            <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Yakin hapus?')" class="bg-red-50 text-red-600 py-2 px-4 rounded-lg hover:bg-red-100 font-bold text-xs flex-grow text-center">
-                                🗑️ HAPUS
-                            </a>
+                            <a href="/admin/edit/{{ item.id }}" class="bg-yellow-100 text-yellow-700 py-2 px-4 rounded-lg hover:bg-yellow-200 font-bold text-xs flex-grow text-center">✏️ EDIT</a>
+                            <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Yakin hapus?')" class="bg-red-50 text-red-600 py-2 px-4 rounded-lg hover:bg-red-100 font-bold text-xs flex-grow text-center">🗑️ HAPUS</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -286,15 +284,9 @@ def admin():
     </html>
     ''', products=products_data, contact=contact_data)
 
-# ==============================================================================
-# ✏️ HALAMAN EDIT PRODUK (BARU!)
-# ==============================================================================
-
 @app.route('/admin/edit/<id>')
 def edit_product_page(id):
     if not session.get('is_admin'): return redirect('/admin')
-    
-    # Ambil Data Produk Lama
     product = {}
     if db:
         doc = db.collection('products').document(id).get()
@@ -309,99 +301,49 @@ def edit_product_page(id):
     <body class="bg-slate-100 p-10 font-sans flex justify-center items-center min-h-screen">
         <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-yellow-500 w-full max-w-lg">
             <h2 class="text-2xl font-bold mb-6 text-yellow-800">✏️ Edit Produk</h2>
-            
             <form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-4">
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Link Gambar</label>
-                    <input type="text" name="image_url" value="{{ product.image_url }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Nama Produk</label>
-                    <input type="text" name="name" value="{{ product.name }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Tagline</label>
-                    <input type="text" name="tagline" value="{{ product.tagline }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Link Gambar</label><input type="text" name="image_url" value="{{ product.image_url }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Nama Produk</label><input type="text" name="name" value="{{ product.name }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Tagline</label><input type="text" name="tagline" value="{{ product.tagline }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
                 <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-xs font-bold text-slate-500 uppercase">Harga</label>
-                        <input type="number" name="price" value="{{ product.price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                    </div>
-                    <div>
-                        <label class="text-xs font-bold text-slate-500 uppercase">Harga Coret</label>
-                        <input type="text" name="original_price" value="{{ product.original_price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                    </div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Harga</label><input type="number" name="price" value="{{ product.price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
+                    <div><label class="text-xs font-bold text-slate-500 uppercase">Harga Coret</label><input type="text" name="original_price" value="{{ product.original_price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
                 </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Prefix</label>
-                    <input type="text" name="prefix" value="{{ product.prefix }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label>
-                    <textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ product.description }}</textarea>
-                </div>
-                
-                <div class="flex gap-2 mt-4">
-                    <a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a>
-                    <button class="bg-yellow-500 text-white w-2/3 py-3 rounded-lg font-bold hover:bg-yellow-600 shadow-lg">UPDATE DATA</button>
-                </div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Prefix</label><input type="text" name="prefix" value="{{ product.prefix }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ product.description }}</textarea></div>
+                <div class="flex gap-2 mt-4"><a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a><button class="bg-yellow-500 text-white w-2/3 py-3 rounded-lg font-bold hover:bg-yellow-600 shadow-lg">UPDATE DATA</button></div>
             </form>
         </div>
     </body>
     </html>
     ''', product=product)
 
-# ==============================================================================
-# 🚀 LOGIC UPDATE DATABASE
-# ==============================================================================
-
 @app.route('/admin/update/<id>', methods=['POST'])
 def update_product_logic(id):
     if not session.get('is_admin'): return redirect('/admin')
-    
     data = {
-        "name": request.form.get('name'),
-        "tagline": request.form.get('tagline'),
-        "price": int(request.form.get('price')),
-        "original_price": request.form.get('original_price'),
-        "prefix": request.form.get('prefix'),
-        "description": request.form.get('description'),
+        "name": request.form.get('name'), "tagline": request.form.get('tagline'),
+        "price": int(request.form.get('price')), "original_price": request.form.get('original_price'),
+        "prefix": request.form.get('prefix'), "description": request.form.get('description'),
         "image_url": request.form.get('image_url')
     }
-
-    if db:
-        # Update data yang sudah ada (tidak menghapus created_at)
-        db.collection('products').document(id).update(data)
-    
+    if db: db.collection('products').document(id).update(data)
     return redirect('/admin')
 
-# --- LOGIC LAINNYA (TETAP SAMA) ---
-
 @app.route('/logout')
-def logout():
-    session.pop('is_admin', None)
-    return redirect('/')
+def logout(): session.pop('is_admin', None); return redirect('/')
 
 @app.route('/admin/settings', methods=['POST'])
 def update_settings():
     if not session.get('is_admin'): return redirect('/admin')
-    data = {
-        "company": request.form.get('company'), "address": request.form.get('address'),
-        "whatsapp": request.form.get('whatsapp'), "email": request.form.get('email').strip()
-    }
+    data = {"company": request.form.get('company'), "address": request.form.get('address'), "whatsapp": request.form.get('whatsapp'), "email": request.form.get('email').strip()}
     if db: db.collection('settings').document('contact').set(data)
     return redirect('/admin')
 
 @app.route('/admin/add', methods=['POST'])
 def add_product():
     if not session.get('is_admin'): return redirect('/admin')
-    data = {
-        "name": request.form.get('name'), "tagline": request.form.get('tagline'),
-        "price": int(request.form.get('price')), "original_price": request.form.get('original_price'),
-        "prefix": request.form.get('prefix'), "description": request.form.get('description'),
-        "image_url": request.form.get('image_url'), "created_at": firestore.SERVER_TIMESTAMP
-    }
+    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "created_at": firestore.SERVER_TIMESTAMP }
     if db: db.collection('products').add(data)
     return redirect('/admin')
 
