@@ -36,7 +36,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ==============================================================================
-# 🌐 HALAMAN PUBLIK (FIX GAMBAR UTUH)
+# 🌐 HALAMAN PUBLIK
 # ==============================================================================
 
 @app.route('/')
@@ -128,11 +128,11 @@ def home():
                     
                     <div class="h-64 w-full bg-white relative overflow-hidden p-4 flex items-center justify-center">
                         <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-contain transition duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
-                        
                         <div class="absolute top-4 right-4 bg-indigo-50/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm text-indigo-900 border border-indigo-100">
                             {{ item.prefix }} Premium
                         </div>
                     </div>
+
                     <div class="p-8 flex-grow flex flex-col bg-white/50">
                         <h2 class="text-2xl font-extrabold mb-1 text-slate-900">{{ item.name }}</h2>
                         <p class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
@@ -142,13 +142,27 @@ def home():
                                 <span class="text-3xl font-extrabold text-slate-900">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
                                 <span class="text-xs line-through text-slate-400 bg-slate-100 px-2 py-1 rounded">Rp {{ item.original_price }}</span>
                             </div>
-                            <form action="/checkout" method="POST">
-                                <input type="hidden" name="product_id" value="{{ item.id }}">
-                                <button type="submit" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold py-4 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all flex justify-center items-center gap-2 shadow-lg">
-                                    BELI SEKARANG 🚀
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                {% if item.download_url %}
+                                <a href="{{ item.download_url }}" target="_blank" class="flex items-center justify-center bg-white border border-slate-300 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 transition shadow-sm gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    <span class="text-sm">UNDUH</span>
+                                </a>
+                                {% else %}
+                                <button disabled class="bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed">
+                                    BELUM RILIS
                                 </button>
-                            </form>
-                        </div>
+                                {% endif %}
+
+                                <form action="/checkout" method="POST" class="flex-grow">
+                                    <input type="hidden" name="product_id" value="{{ item.id }}">
+                                    <button type="submit" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold py-3 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all flex justify-center items-center gap-1 shadow-lg">
+                                        <span class="text-sm">BELI LISENSI</span>
+                                    </button>
+                                </form>
+                            </div>
+                            </div>
                     </div>
                 </div>
                 {% else %}
@@ -190,8 +204,7 @@ def admin():
         if pin == ADMIN_PIN:
             session['is_admin'] = True
             return redirect('/admin')
-        else:
-            return "PIN SALAH!"
+        else: return "PIN SALAH!"
 
     if not session.get('is_admin'):
         return render_template_string('<form method="POST" style="text-align:center;padding:50px;"><input type="password" name="pin" placeholder="PIN Rahasia"><button>Masuk</button></form>')
@@ -242,6 +255,7 @@ def admin():
                             <input type="text" name="original_price" placeholder="Harga Coret" class="w-full border bg-slate-50 p-3 rounded-lg" required>
                         </div>
                         <input type="text" name="prefix" placeholder="Prefix (MOOD-)" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                        <input type="text" name="download_url" placeholder="Link PlayStore / APK (Boleh Kosong)" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300">
                         <textarea name="description" placeholder="Deskripsi" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required></textarea>
                         <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg mt-2">+ SIMPAN PRODUK</button>
                     </form>
@@ -310,6 +324,12 @@ def edit_product_page(id):
                     <div><label class="text-xs font-bold text-slate-500 uppercase">Harga Coret</label><input type="text" name="original_price" value="{{ product.original_price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
                 </div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase">Prefix</label><input type="text" name="prefix" value="{{ product.prefix }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
+                
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Link Download (PlayStore/APK)</label>
+                    <input type="text" name="download_url" value="{{ product.download_url }}" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300" placeholder="Biarkan kosong jika belum ada">
+                </div>
+
                 <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ product.description }}</textarea></div>
                 <div class="flex gap-2 mt-4"><a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a><button class="bg-yellow-500 text-white w-2/3 py-3 rounded-lg font-bold hover:bg-yellow-600 shadow-lg">UPDATE DATA</button></div>
             </form>
@@ -325,7 +345,9 @@ def update_product_logic(id):
         "name": request.form.get('name'), "tagline": request.form.get('tagline'),
         "price": int(request.form.get('price')), "original_price": request.form.get('original_price'),
         "prefix": request.form.get('prefix'), "description": request.form.get('description'),
-        "image_url": request.form.get('image_url')
+        "image_url": request.form.get('image_url'),
+        # Tambahan Update
+        "download_url": request.form.get('download_url')
     }
     if db: db.collection('products').document(id).update(data)
     return redirect('/admin')
@@ -343,7 +365,15 @@ def update_settings():
 @app.route('/admin/add', methods=['POST'])
 def add_product():
     if not session.get('is_admin'): return redirect('/admin')
-    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "created_at": firestore.SERVER_TIMESTAMP }
+    data = { 
+        "name": request.form.get('name'), "tagline": request.form.get('tagline'), 
+        "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), 
+        "prefix": request.form.get('prefix'), "description": request.form.get('description'), 
+        "image_url": request.form.get('image_url'), 
+        # Tambahan Add
+        "download_url": request.form.get('download_url'),
+        "created_at": firestore.SERVER_TIMESTAMP 
+    }
     if db: db.collection('products').add(data)
     return redirect('/admin')
 
