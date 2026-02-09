@@ -36,7 +36,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ==============================================================================
-# 🌐 HALAMAN PUBLIK (DESIGN BARU + FIX EMAIL)
+# 🌐 HALAMAN PUBLIK
 # ==============================================================================
 
 @app.route('/')
@@ -150,7 +150,7 @@ def home():
                     </div>
                 </div>
                 {% else %}
-                <div class="col-span-3 text-center py-20 text-slate-400">Belum ada produk. Silakan tambah di Admin Panel.</div>
+                <div class="col-span-3 text-center py-20 text-slate-400">Belum ada produk.</div>
                 {% endfor %}
             </div>
         </section>
@@ -178,7 +178,7 @@ def home():
     ''', products=products_data, contact=contact_data)
 
 # ==============================================================================
-# 🔐 ADMIN PANEL (YANG HILANG SUDAH DIKEMBALIKAN)
+# 🔐 ADMIN PANEL (DASHBOARD)
 # ==============================================================================
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -192,15 +192,7 @@ def admin():
             return "PIN SALAH!"
 
     if not session.get('is_admin'):
-        return render_template_string('''
-            <div style="display:flex;justify-content:center;align-items:center;height:100vh;background:#f8fafc;">
-                <form method="POST" style="background:white;padding:40px;border-radius:20px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1);text-align:center;">
-                    <h2 style="margin-bottom:20px;font-family:sans-serif;">🕵️‍♂️ Secret Admin</h2>
-                    <input type="password" name="pin" placeholder="PIN Rahasia" style="padding:10px;border:1px solid #ddd;border-radius:8px;width:100%;margin-bottom:15px;">
-                    <button type="submit" style="background:black;color:white;padding:10px 20px;border:none;border-radius:8px;width:100%;cursor:pointer;">BUKA</button>
-                </form>
-            </div>
-        ''')
+        return render_template_string('<form method="POST" style="text-align:center;padding:50px;"><input type="password" name="pin" placeholder="PIN Rahasia"><button>Masuk</button></form>')
 
     products_data = []
     contact_data = {"company": "", "address": "", "whatsapp": "", "email": ""}
@@ -214,7 +206,6 @@ def admin():
         settings_doc = db.collection('settings').document('contact').get()
         if settings_doc.exists: contact_data = settings_doc.to_dict()
 
-    # 👇 INI DIA HTML ADMIN YANG LENGKAP (TOMBOL KELUAR SUDAH ADA)
     return render_template_string('''
     <!DOCTYPE html>
     <html lang="id">
@@ -232,113 +223,160 @@ def admin():
                     <h1 class="text-2xl font-bold text-slate-800">Admin Dashboard</h1>
                 </div>
                 <div class="gap-2 flex">
-                    <a href="/" class="bg-slate-800 text-white px-5 py-2 rounded-lg hover:bg-slate-900 font-bold text-sm flex items-center gap-2">
-                        🏠 Lihat Web
-                    </a>
-                    <a href="/logout" class="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 font-bold text-sm flex items-center gap-2">
-                        🚪 Keluar
-                    </a>
+                    <a href="/" class="bg-slate-800 text-white px-5 py-2 rounded-lg hover:bg-slate-900 font-bold text-sm">🏠 Lihat Web</a>
+                    <a href="/logout" class="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 font-bold text-sm">🚪 Keluar</a>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
                 <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-indigo-600">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-indigo-900">
-                        📦 Tambah Produk Baru
-                    </h2>
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-indigo-900">📦 Tambah Produk Baru</h2>
                     <form action="/admin/add" method="POST" class="grid gap-4">
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Link Gambar</label>
-                            <input type="text" name="image_url" placeholder="https://..." class="w-full border bg-slate-50 p-3 rounded-lg focus:ring focus:ring-indigo-200 outline-none" required>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Nama Produk</label>
-                            <input type="text" name="name" placeholder="Contoh: Moodly AI" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Tagline</label>
-                            <input type="text" name="tagline" placeholder="Contoh: Quote Generator" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                        </div>
+                        <input type="text" name="image_url" placeholder="Link Gambar (https://...)" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                        <input type="text" name="name" placeholder="Nama Produk" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                        <input type="text" name="tagline" placeholder="Tagline" class="w-full border bg-slate-50 p-3 rounded-lg" required>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">Harga (Angka)</label>
-                                <input type="number" name="price" placeholder="99000" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">Harga Coret</label>
-                                <input type="text" name="original_price" placeholder="250rb" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                            </div>
+                            <input type="number" name="price" placeholder="Harga" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                            <input type="text" name="original_price" placeholder="Harga Coret" class="w-full border bg-slate-50 p-3 rounded-lg" required>
                         </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Prefix Order</label>
-                            <input type="text" name="prefix" placeholder="MOOD-" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label>
-                            <textarea name="description" placeholder="Jelaskan produk..." class="w-full border bg-slate-50 p-3 rounded-lg outline-none" rows="3" required></textarea>
-                        </div>
-                        <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg mt-2">
-                            + SIMPAN PRODUK
-                        </button>
+                        <input type="text" name="prefix" placeholder="Prefix (MOOD-)" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                        <textarea name="description" placeholder="Deskripsi" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required></textarea>
+                        <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg mt-2">+ SIMPAN PRODUK</button>
                     </form>
                 </div>
 
                 <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-emerald-500 h-fit">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-900">
-                        📞 Edit Kontak & Footer
-                    </h2>
+                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-900">📞 Edit Kontak</h2>
                     <form action="/admin/settings" method="POST" class="grid gap-4">
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Nama Perusahaan</label>
-                            <input type="text" name="company" value="{{ contact.company }}" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Alamat Lengkap</label>
-                            <textarea name="address" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" rows="3" required>{{ contact.address }}</textarea>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">WhatsApp (62...)</label>
-                            <input type="number" name="whatsapp" value="{{ contact.whatsapp }}" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                        </div>
-                        <div>
-                            <label class="text-xs font-bold text-slate-500 uppercase">Email Support</label>
-                            <input type="email" name="email" value="{{ contact.email }}" class="w-full border bg-slate-50 p-3 rounded-lg outline-none" required>
-                        </div>
-                        <button class="bg-emerald-600 text-white w-full py-3 rounded-lg font-bold hover:bg-emerald-700 transition shadow-lg mt-2">
-                            💾 UPDATE KONTAK
-                        </button>
+                        <input type="text" name="company" value="{{ contact.company }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                        <textarea name="address" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ contact.address }}</textarea>
+                        <input type="number" name="whatsapp" value="{{ contact.whatsapp }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                        <input type="email" name="email" value="{{ contact.email }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                        <button class="bg-emerald-600 text-white w-full py-3 rounded-lg font-bold hover:bg-emerald-700 shadow-lg mt-2">💾 UPDATE KONTAK</button>
                     </form>
                 </div>
             </div>
 
             <div class="mt-12">
-                <h2 class="text-xl font-bold mb-4 text-slate-700 flex items-center gap-2">
-                    📋 Daftar Produk Aktif
-                </h2>
+                <h2 class="text-xl font-bold mb-4 text-slate-700">📋 Daftar Produk Aktif</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {% for item in products %}
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex gap-4 items-center">
-                        <img src="{{ item.image_url }}" class="w-16 h-16 object-cover rounded-lg bg-gray-100">
-                        <div class="flex-grow">
-                            <h3 class="font-bold text-slate-800">{{ item.name }}</h3>
-                            <p class="text-slate-500 text-xs font-bold">Rp {{ item.price }}</p>
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-3">
+                        <div class="flex gap-4 items-center">
+                            <img src="{{ item.image_url }}" class="w-16 h-16 object-cover rounded-lg bg-gray-100">
+                            <div class="flex-grow">
+                                <h3 class="font-bold text-slate-800">{{ item.name }}</h3>
+                                <p class="text-slate-500 text-xs font-bold">Rp {{ item.price }}</p>
+                            </div>
                         </div>
-                        <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Yakin hapus produk ini?')" class="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-100 transition" title="Hapus">
-                            🗑️
-                        </a>
+                        <div class="flex gap-2 mt-2">
+                            <a href="/admin/edit/{{ item.id }}" class="bg-yellow-100 text-yellow-700 py-2 px-4 rounded-lg hover:bg-yellow-200 font-bold text-xs flex-grow text-center">
+                                ✏️ EDIT
+                            </a>
+                            <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Yakin hapus?')" class="bg-red-50 text-red-600 py-2 px-4 rounded-lg hover:bg-red-100 font-bold text-xs flex-grow text-center">
+                                🗑️ HAPUS
+                            </a>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
-            </div>
-
-            <div class="text-center mt-10 text-slate-400 text-sm">
-                LogicLife Admin Panel v2.0
             </div>
         </div>
     </body>
     </html>
     ''', products=products_data, contact=contact_data)
+
+# ==============================================================================
+# ✏️ HALAMAN EDIT PRODUK (BARU!)
+# ==============================================================================
+
+@app.route('/admin/edit/<id>')
+def edit_product_page(id):
+    if not session.get('is_admin'): return redirect('/admin')
+    
+    # Ambil Data Produk Lama
+    product = {}
+    if db:
+        doc = db.collection('products').document(id).get()
+        if doc.exists:
+            product = doc.to_dict()
+            product['id'] = doc.id
+    
+    return render_template_string('''
+    <!DOCTYPE html>
+    <html lang="id">
+    <head><title>Edit Produk</title><script src="https://cdn.tailwindcss.com"></script></head>
+    <body class="bg-slate-100 p-10 font-sans flex justify-center items-center min-h-screen">
+        <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-yellow-500 w-full max-w-lg">
+            <h2 class="text-2xl font-bold mb-6 text-yellow-800">✏️ Edit Produk</h2>
+            
+            <form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-4">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Link Gambar</label>
+                    <input type="text" name="image_url" value="{{ product.image_url }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Nama Produk</label>
+                    <input type="text" name="name" value="{{ product.name }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Tagline</label>
+                    <input type="text" name="tagline" value="{{ product.tagline }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Harga</label>
+                        <input type="number" name="price" value="{{ product.price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold text-slate-500 uppercase">Harga Coret</label>
+                        <input type="text" name="original_price" value="{{ product.original_price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Prefix</label>
+                    <input type="text" name="prefix" value="{{ product.prefix }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label>
+                    <textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ product.description }}</textarea>
+                </div>
+                
+                <div class="flex gap-2 mt-4">
+                    <a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a>
+                    <button class="bg-yellow-500 text-white w-2/3 py-3 rounded-lg font-bold hover:bg-yellow-600 shadow-lg">UPDATE DATA</button>
+                </div>
+            </form>
+        </div>
+    </body>
+    </html>
+    ''', product=product)
+
+# ==============================================================================
+# 🚀 LOGIC UPDATE DATABASE
+# ==============================================================================
+
+@app.route('/admin/update/<id>', methods=['POST'])
+def update_product_logic(id):
+    if not session.get('is_admin'): return redirect('/admin')
+    
+    data = {
+        "name": request.form.get('name'),
+        "tagline": request.form.get('tagline'),
+        "price": int(request.form.get('price')),
+        "original_price": request.form.get('original_price'),
+        "prefix": request.form.get('prefix'),
+        "description": request.form.get('description'),
+        "image_url": request.form.get('image_url')
+    }
+
+    if db:
+        # Update data yang sudah ada (tidak menghapus created_at)
+        db.collection('products').document(id).update(data)
+    
+    return redirect('/admin')
+
+# --- LOGIC LAINNYA (TETAP SAMA) ---
 
 @app.route('/logout')
 def logout():
@@ -349,10 +387,8 @@ def logout():
 def update_settings():
     if not session.get('is_admin'): return redirect('/admin')
     data = {
-        "company": request.form.get('company'),
-        "address": request.form.get('address'),
-        "whatsapp": request.form.get('whatsapp'),
-        "email": request.form.get('email').strip()
+        "company": request.form.get('company'), "address": request.form.get('address'),
+        "whatsapp": request.form.get('whatsapp'), "email": request.form.get('email').strip()
     }
     if db: db.collection('settings').document('contact').set(data)
     return redirect('/admin')
