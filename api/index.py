@@ -11,10 +11,12 @@ app = Flask(__name__)
 app.secret_key = 'rahasia_negara_bos_nexa'
 
 # ==============================================================================
-# ⚙️ KONFIGURASI (Cek lagi Spasi di sini!)
+# ⚙️ KONFIGURASI (CEK BAGIAN INI!)
 # ==============================================================================
-MERCHANT_CODE = "DS28030"    # 👈 Pastikan Benar & Tidak ada spasi
-API_KEY = "58191656b8692a368c766a9ca4124ee0"    # 👈 Pastikan Benar & Tidak ada spasi
+# ⚠️ PERHATIAN: Hapus huruf 'S' jika Kode Merchant Bos sebenarnya cuma 'D' + Angka
+# Contoh salah: "DS28030" | Contoh benar: "D28030"
+MERCHANT_CODE = "D28030..."   # 👈 Cek lagi, biasanya diawali 'D' saja.
+API_KEY = "58191656b8692a368c766a9ca4124ee0"    # 👈 Pastikan ini API Key Project (bukan Merchant Key)
 
 # URL DUITKU v2 (CREATE INVOICE)
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/createInvoice"
@@ -39,7 +41,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ==============================================================================
-# 🌐 HALAMAN PUBLIK (Frontend)
+# 🌐 HALAMAN PUBLIK
 # ==============================================================================
 
 @app.route('/')
@@ -192,7 +194,7 @@ def home():
                     <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">WhatsApp Support</a>
                     <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">{{ contact.email }}</a>
                 </div>
-                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem. v2.6 (Payment Fix)</p>
+                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem. v2.7 (Signature Fix)</p>
             </div>
         </footer>
     </body>
@@ -362,7 +364,7 @@ def delete_product(id):
     return redirect('/admin')
 
 # ==============================================================================
-# 💰 CHECKOUT FIX (PAYLOAD SIMPEL)
+# 💰 CHECKOUT FIX (ITEM DETAILS RESTORED + CORRECT INT TYPE)
 # ==============================================================================
 @app.route('/checkout', methods=['POST'])
 def checkout():
@@ -373,17 +375,15 @@ def checkout():
         if doc.exists: product = doc.to_dict()
     if not product: return "Error: Produk tidak ditemukan."
     
-    amount = int(product['price']) # Pastikan INT
+    amount = int(product['price']) # Wajib Integer
     product_name = product['name']
     order_id = product['prefix'] + str(random.randint(10000, 99999))
     
-    # 1. GENERATE SIGNATURE
-    # Rumus v2: MD5(merchantCode + merchantOrderId + paymentAmount + apiKey)
+    # GENERATE SIGNATURE
     signature_str = MERCHANT_CODE + order_id + str(amount) + API_KEY
     signature = hashlib.md5(signature_str.encode('utf-8')).hexdigest()
     
-    # 2. PAYLOAD SEDERHANA (HAPUS ITEM DETAILS & CUSTOMER DETAIL NESTED)
-    # Ini "Safety Mode" biar server Duitku gak bingung baca format
+    # PAYLOAD LENGKAP TAPI AMAN
     payload = {
         "merchantCode": MERCHANT_CODE,
         "paymentAmount": amount,
@@ -391,6 +391,18 @@ def checkout():
         "productDetails": product_name,
         "email": "customer@example.com",
         "phoneNumber": "08123456789",
+        # ITEM DETAILS DIKEMBALIKAN (Duitku butuh ini di v2)
+        "itemDetails": [{
+            "name": product_name,
+            "price": amount,
+            "quantity": 1
+        }],
+        "customerDetail": {
+            "firstName": "Customer",
+            "lastName": "LogicLife",
+            "email": "customer@example.com",
+            "phoneNumber": "08123456789"
+        },
         "callbackUrl": "https://logiclife.site/callback",
         "returnUrl": "https://logiclife.site/finish",
         "signature": signature,
@@ -403,7 +415,7 @@ def checkout():
         data = response.json()
         if 'paymentUrl' in data: return redirect(data['paymentUrl'])
         
-        # Debugging biar ketahuan salah di mana
-        return f"Error Duitku: {data} <br> Signature String: {signature_str} <br> Cek API KEY & MERCHANT CODE Bos!"
+        # Debugging Tetap Ada
+        return f"Error Duitku: {data} <br> Signature String: {signature_str} <br> Cek API KEY & MERCHANT CODE Bos! Pastikan tidak ada 'S' di merchant code."
         
     except Exception as e: return str(e)
