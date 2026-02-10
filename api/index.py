@@ -13,8 +13,8 @@ app.secret_key = 'rahasia_negara_bos_nexa'
 # ==============================================================================
 # ⚙️ KONFIGURASI 
 # ==============================================================================
-MERCHANT_CODE = "DS27970"    # 👈 Ganti Kode Merchant
-API_KEY = "26d1b203f71980414c28ee77e249b4b8"    # 👈 Ganti API Key Sandbox
+MERCHANT_CODE = "DS28030"    # 👈 Ganti Kode Merchant
+API_KEY = "58191656b8692a368c766a9ca4124ee0"    # 👈 Ganti API Key Sandbox
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry"
 ADMIN_PIN = "M3isy4851"            # 👈 PIN Admin
 
