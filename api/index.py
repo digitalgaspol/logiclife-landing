@@ -11,16 +11,14 @@ app = Flask(__name__)
 app.secret_key = 'rahasia_negara_bos_nexa'
 
 # ==============================================================================
-# ⚙️ KONFIGURASI (ISI DATA BARU BOS DI SINI)
+# ⚙️ KONFIGURASI (JANGAN LUPA ISI INI LAGI BOS!)
 # ==============================================================================
-MERCHANT_CODE = "DS28030"      # 👈 Ganti Kode Merchant Project Baru
-API_KEY = "58191656b8692a368c766a9ca4124ee0"      # 👈 Ganti API Key Project Baru
+MERCHANT_CODE = "DS28030"      # 👈 ISI KODE MERCHANT BARU
+API_KEY = "58191656b8692a368c766a9ca4124ee0"      # 👈 ISI API KEY BARU
 
-# 👇 KITA KEMBALI KE JALUR V2 INQUIRY (JALUR DIRECT)
+# URL DUITKU (Mode QRIS / Inquiry V2)
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry"
-
-# 👇 KODE METODE PEMBAYARAN (SP = QRIS / ShopeePay di Sandbox)
-PAYMENT_METHOD = "SP" 
+PAYMENT_METHOD = "SP" # QRIS ShopeePay Sandbox
 
 ADMIN_PIN = "M3isy4851"
 
@@ -148,7 +146,9 @@ def home():
                     <div class="p-8 flex-grow flex flex-col bg-white/50">
                         <h2 class="text-2xl font-extrabold mb-1 text-slate-900">{{ item.name }}</h2>
                         <p class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
-                        <p class="text-slate-500 text-sm mb-6">{{ item.description }}</p>
+                        
+                        <p class="text-slate-500 text-sm mb-6 whitespace-pre-line leading-relaxed">{{ item.description }}</p>
+                        
                         <div class="mt-auto pt-6 border-t border-slate-100">
                             <div class="flex justify-between items-center mb-4">
                                 <span class="text-3xl font-extrabold text-slate-900">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
@@ -195,7 +195,7 @@ def home():
                     <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">WhatsApp Support</a>
                     <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">{{ contact.email }}</a>
                 </div>
-                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem. v3.0 (QRIS Mode)</p>
+                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem. v3.1 (Text Fix)</p>
             </div>
         </footer>
     </body>
@@ -259,7 +259,7 @@ def admin():
                         </div>
                         <input type="text" name="prefix" placeholder="Prefix (MOOD-)" class="w-full border bg-slate-50 p-3 rounded-lg" required>
                         <input type="text" name="download_url" placeholder="Link PlayStore / APK (Boleh Kosong)" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300">
-                        <textarea name="description" placeholder="Deskripsi" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required></textarea>
+                        <textarea name="description" placeholder="Deskripsi (Tekan Enter untuk baris baru)" class="w-full border bg-slate-50 p-3 rounded-lg" rows="10" required></textarea>
                         <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg mt-2">+ SIMPAN PRODUK</button>
                     </form>
                 </div>
@@ -326,7 +326,7 @@ def edit_product_page(id):
                 </div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase">Prefix</label><input type="text" name="prefix" value="{{ product.prefix }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase">Link Download</label><input type="text" name="download_url" value="{{ product.download_url }}" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300"></div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ product.description }}</textarea></div>
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="10" required>{{ product.description }}</textarea></div>
                 <div class="flex gap-2 mt-4"><a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a><button class="bg-yellow-500 text-white w-2/3 py-3 rounded-lg font-bold hover:bg-yellow-600 shadow-lg">UPDATE DATA</button></div>
             </form>
         </div>
