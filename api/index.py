@@ -94,9 +94,16 @@ def home():
 
         <nav class="glass sticky top-0 z-50">
             <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-                <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold shadow-lg">L</div>
-                    <span class="text-xl font-bold text-slate-900 tracking-tight">LogicLife<span class="text-indigo-600">.</span></span>
+                <div class="flex items-center gap-2 group cursor-pointer">
+                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition duration-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xl font-extrabold text-slate-900 tracking-tight leading-none">LogicLife<span class="text-indigo-600">.</span></span>
+                        <span class="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest leading-none">Digital Ecosystem</span>
+                    </div>
                 </div>
                 <div class="flex gap-6">
                     <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600 transition">Produk</a>
@@ -107,7 +114,7 @@ def home():
 
         <header class="pt-24 pb-20 px-6 text-center relative z-10">
             <div class="inline-block mb-4 px-4 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold tracking-widest uppercase border border-indigo-200">
-                Digital Ecosystem
+                Future Technology
             </div>
             <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
                 Solusi Digital <br>
@@ -125,14 +132,12 @@ def home():
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 {% for item in products %}
                 <div class="glass bg-white/80 rounded-3xl shadow-xl overflow-hidden flex flex-col hover:-translate-y-2 transition duration-300 group">
-                    
                     <div class="h-64 w-full bg-white relative overflow-hidden p-4 flex items-center justify-center">
                         <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-contain transition duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
                         <div class="absolute top-4 right-4 bg-indigo-50/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm text-indigo-900 border border-indigo-100">
                             {{ item.prefix }} Premium
                         </div>
                     </div>
-
                     <div class="p-8 flex-grow flex flex-col bg-white/50">
                         <h2 class="text-2xl font-extrabold mb-1 text-slate-900">{{ item.name }}</h2>
                         <p class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
@@ -142,7 +147,6 @@ def home():
                                 <span class="text-3xl font-extrabold text-slate-900">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
                                 <span class="text-xs line-through text-slate-400 bg-slate-100 px-2 py-1 rounded">Rp {{ item.original_price }}</span>
                             </div>
-                            
                             <div class="grid grid-cols-2 gap-2">
                                 {% if item.download_url %}
                                 <a href="{{ item.download_url }}" target="_blank" class="flex items-center justify-center bg-white border border-slate-300 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 transition shadow-sm gap-1">
@@ -150,11 +154,8 @@ def home():
                                     <span class="text-sm">UNDUH</span>
                                 </a>
                                 {% else %}
-                                <button disabled class="bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed">
-                                    BELUM RILIS
-                                </button>
+                                <button disabled class="bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed">BELUM RILIS</button>
                                 {% endif %}
-
                                 <form action="/checkout" method="POST" class="flex-grow">
                                     <input type="hidden" name="product_id" value="{{ item.id }}">
                                     <button type="submit" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold py-3 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all flex justify-center items-center gap-1 shadow-lg">
@@ -162,7 +163,7 @@ def home():
                                     </button>
                                 </form>
                             </div>
-                            </div>
+                        </div>
                     </div>
                 </div>
                 {% else %}
@@ -175,16 +176,17 @@ def home():
             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
             <div class="container mx-auto px-6 relative z-30">
                 <div class="mb-8">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-xl shadow-indigo-900/50">
+                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
                     <p class="mb-2 font-bold text-white text-2xl tracking-tight">{{ contact.company }}</p>
                     <p class="text-slate-400 max-w-md mx-auto">{{ contact.address }}</p>
                 </div>
                 <div class="flex flex-wrap justify-center gap-4 mb-10">
-                    <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">
-                        WhatsApp Support
-                    </a>
-                    <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">
-                        {{ contact.email }}
-                    </a>
+                    <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">WhatsApp Support</a>
+                    <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">{{ contact.email }}</a>
                 </div>
                 <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem.</p>
             </div>
@@ -224,14 +226,9 @@ def admin():
     return render_template_string('''
     <!DOCTYPE html>
     <html lang="id">
-    <head>
-        <meta charset="UTF-8">
-        <title>Admin LogicLife</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-    </head>
+    <head><title>Admin LogicLife</title><script src="https://cdn.tailwindcss.com"></script></head>
     <body class="bg-slate-100 p-10 font-sans">
         <div class="max-w-6xl mx-auto">
-            
             <div class="flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm">
                 <div class="flex items-center gap-2">
                     <span class="text-2xl">⚙️</span>
@@ -242,7 +239,6 @@ def admin():
                     <a href="/logout" class="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 font-bold text-sm">🚪 Keluar</a>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-indigo-600">
                     <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-indigo-900">📦 Tambah Produk Baru</h2>
@@ -260,7 +256,6 @@ def admin():
                         <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg mt-2">+ SIMPAN PRODUK</button>
                     </form>
                 </div>
-
                 <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-emerald-500 h-fit">
                     <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-900">📞 Edit Kontak</h2>
                     <form action="/admin/settings" method="POST" class="grid gap-4">
@@ -272,7 +267,6 @@ def admin():
                     </form>
                 </div>
             </div>
-
             <div class="mt-12">
                 <h2 class="text-xl font-bold mb-4 text-slate-700">📋 Daftar Produk Aktif</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -324,12 +318,7 @@ def edit_product_page(id):
                     <div><label class="text-xs font-bold text-slate-500 uppercase">Harga Coret</label><input type="text" name="original_price" value="{{ product.original_price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
                 </div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase">Prefix</label><input type="text" name="prefix" value="{{ product.prefix }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
-                
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase">Link Download (PlayStore/APK)</label>
-                    <input type="text" name="download_url" value="{{ product.download_url }}" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300" placeholder="Biarkan kosong jika belum ada">
-                </div>
-
+                <div><label class="text-xs font-bold text-slate-500 uppercase">Link Download</label><input type="text" name="download_url" value="{{ product.download_url }}" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300"></div>
                 <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ product.description }}</textarea></div>
                 <div class="flex gap-2 mt-4"><a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a><button class="bg-yellow-500 text-white w-2/3 py-3 rounded-lg font-bold hover:bg-yellow-600 shadow-lg">UPDATE DATA</button></div>
             </form>
@@ -341,14 +330,7 @@ def edit_product_page(id):
 @app.route('/admin/update/<id>', methods=['POST'])
 def update_product_logic(id):
     if not session.get('is_admin'): return redirect('/admin')
-    data = {
-        "name": request.form.get('name'), "tagline": request.form.get('tagline'),
-        "price": int(request.form.get('price')), "original_price": request.form.get('original_price'),
-        "prefix": request.form.get('prefix'), "description": request.form.get('description'),
-        "image_url": request.form.get('image_url'),
-        # Tambahan Update
-        "download_url": request.form.get('download_url')
-    }
+    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "download_url": request.form.get('download_url') }
     if db: db.collection('products').document(id).update(data)
     return redirect('/admin')
 
@@ -365,15 +347,7 @@ def update_settings():
 @app.route('/admin/add', methods=['POST'])
 def add_product():
     if not session.get('is_admin'): return redirect('/admin')
-    data = { 
-        "name": request.form.get('name'), "tagline": request.form.get('tagline'), 
-        "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), 
-        "prefix": request.form.get('prefix'), "description": request.form.get('description'), 
-        "image_url": request.form.get('image_url'), 
-        # Tambahan Add
-        "download_url": request.form.get('download_url'),
-        "created_at": firestore.SERVER_TIMESTAMP 
-    }
+    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "download_url": request.form.get('download_url'), "created_at": firestore.SERVER_TIMESTAMP }
     if db: db.collection('products').add(data)
     return redirect('/admin')
 
