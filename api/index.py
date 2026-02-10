@@ -11,16 +11,15 @@ app = Flask(__name__)
 app.secret_key = 'rahasia_negara_bos_nexa'
 
 # ==============================================================================
-# ⚙️ KONFIGURASI (BAGIAN INI YANG DIPERBAIKI)
+# ⚙️ KONFIGURASI (Cek lagi Spasi di sini!)
 # ==============================================================================
-MERCHANT_CODE = "DS28030"    # 👈 Ganti Kode Merchant
-API_KEY = "58191656b8692a368c766a9ca4124ee0"    # 👈 Ganti API Key Sandbox
+MERCHANT_CODE = "DS28030"    # 👈 Pastikan Benar & Tidak ada spasi
+API_KEY = "58191656b8692a368c766a9ca4124ee0"    # 👈 Pastikan Benar & Tidak ada spasi
 
-# 👇👇👇 INI URL YANG BARU (CREATE INVOICE) 👇👇👇
+# URL DUITKU v2 (CREATE INVOICE)
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/createInvoice"
-# 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆
 
-ADMIN_PIN = "M3isy4851"            # 👈 PIN Admin
+ADMIN_PIN = "M3isy4851"
 
 # ==============================================================================
 # 🔥 INIT FIREBASE
@@ -40,7 +39,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ==============================================================================
-# 🌐 HALAMAN PUBLIK
+# 🌐 HALAMAN PUBLIK (Frontend)
 # ==============================================================================
 
 @app.route('/')
@@ -193,7 +192,7 @@ def home():
                     <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">WhatsApp Support</a>
                     <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">{{ contact.email }}</a>
                 </div>
-                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem.</p>
+                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem. v2.6 (Payment Fix)</p>
             </div>
         </footer>
     </body>
@@ -362,6 +361,9 @@ def delete_product(id):
     if db: db.collection('products').document(id).delete()
     return redirect('/admin')
 
+# ==============================================================================
+# 💰 CHECKOUT FIX (PAYLOAD SIMPEL)
+# ==============================================================================
 @app.route('/checkout', methods=['POST'])
 def checkout():
     product_id = request.form.get('product_id')
@@ -370,25 +372,38 @@ def checkout():
         doc = db.collection('products').document(product_id).get()
         if doc.exists: product = doc.to_dict()
     if not product: return "Error: Produk tidak ditemukan."
-    amount = int(product['price'])
+    
+    amount = int(product['price']) # Pastikan INT
     product_name = product['name']
     order_id = product['prefix'] + str(random.randint(10000, 99999))
+    
+    # 1. GENERATE SIGNATURE
+    # Rumus v2: MD5(merchantCode + merchantOrderId + paymentAmount + apiKey)
     signature_str = MERCHANT_CODE + order_id + str(amount) + API_KEY
     signature = hashlib.md5(signature_str.encode('utf-8')).hexdigest()
     
-    # PAYLOAD SAMA, TAPI SEKARANG DIKIRIM KE URL YANG BARU
+    # 2. PAYLOAD SEDERHANA (HAPUS ITEM DETAILS & CUSTOMER DETAIL NESTED)
+    # Ini "Safety Mode" biar server Duitku gak bingung baca format
     payload = {
-        "merchantCode": MERCHANT_CODE, "paymentAmount": amount, "merchantOrderId": order_id,
-        "productDetails": product_name, "email": "customer@example.com", "phoneNumber": "08123456789",
-        "itemDetails": [{ "name": product_name, "price": amount, "quantity": 1 }],
-        "customerDetail": { "firstName": "Customer", "lastName": "LogicLife", "email": "customer@example.com", "phoneNumber": "08123456789" },
-        "callbackUrl": "https://logiclife.site/callback", "returnUrl": "https://logiclife.site/finish",
-        "signature": signature, "expiryPeriod": 60
+        "merchantCode": MERCHANT_CODE,
+        "paymentAmount": amount,
+        "merchantOrderId": order_id,
+        "productDetails": product_name,
+        "email": "customer@example.com",
+        "phoneNumber": "08123456789",
+        "callbackUrl": "https://logiclife.site/callback",
+        "returnUrl": "https://logiclife.site/finish",
+        "signature": signature,
+        "expiryPeriod": 60
     }
+    
     try:
         headers = {'Content-Type': 'application/json'}
         response = requests.post(SANDBOX_URL, json=payload, headers=headers)
         data = response.json()
         if 'paymentUrl' in data: return redirect(data['paymentUrl'])
-        return f"Error Duitku: {data}"
+        
+        # Debugging biar ketahuan salah di mana
+        return f"Error Duitku: {data} <br> Signature String: {signature_str} <br> Cek API KEY & MERCHANT CODE Bos!"
+        
     except Exception as e: return str(e)
