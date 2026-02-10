@@ -11,11 +11,15 @@ app = Flask(__name__)
 app.secret_key = 'rahasia_negara_bos_nexa'
 
 # ==============================================================================
-# ⚙️ KONFIGURASI 
+# ⚙️ KONFIGURASI (BAGIAN INI YANG DIPERBAIKI)
 # ==============================================================================
 MERCHANT_CODE = "DS28030"    # 👈 Ganti Kode Merchant
 API_KEY = "58191656b8692a368c766a9ca4124ee0"    # 👈 Ganti API Key Sandbox
-SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry"
+
+# 👇👇👇 INI URL YANG BARU (CREATE INVOICE) 👇👇👇
+SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/createInvoice"
+# 👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆👆
+
 ADMIN_PIN = "M3isy4851"            # 👈 PIN Admin
 
 # ==============================================================================
@@ -105,6 +109,7 @@ def home():
                         <span class="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest leading-none">Digital Ecosystem</span>
                     </div>
                 </div>
+
                 <div class="flex gap-6">
                     <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600 transition">Produk</a>
                     <a href="#kontak" class="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Kontak</a>
@@ -370,6 +375,8 @@ def checkout():
     order_id = product['prefix'] + str(random.randint(10000, 99999))
     signature_str = MERCHANT_CODE + order_id + str(amount) + API_KEY
     signature = hashlib.md5(signature_str.encode('utf-8')).hexdigest()
+    
+    # PAYLOAD SAMA, TAPI SEKARANG DIKIRIM KE URL YANG BARU
     payload = {
         "merchantCode": MERCHANT_CODE, "paymentAmount": amount, "merchantOrderId": order_id,
         "productDetails": product_name, "email": "customer@example.com", "phoneNumber": "08123456789",
