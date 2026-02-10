@@ -15,7 +15,7 @@ app.secret_key = 'rahasia_negara_bos_nexa'
 # ==============================================================================
 # ⚠️ PERHATIAN: Hapus huruf 'S' jika Kode Merchant Bos sebenarnya cuma 'D' + Angka
 # Contoh salah: "DS28030" | Contoh benar: "D28030"
-MERCHANT_CODE = "D28030"   # 👈 Cek lagi, biasanya diawali 'D' saja.
+MERCHANT_CODE = "DS28030"   # 👈 Cek lagi, biasanya diawali 'D' saja.
 API_KEY = "58191656b8692a368c766a9ca4124ee0"    # 👈 Pastikan ini API Key Project (bukan Merchant Key)
 
 # URL DUITKU v2 (CREATE INVOICE)
