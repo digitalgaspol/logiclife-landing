@@ -5,77 +5,143 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LogicLife - Digital Ecosystem</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Outfit', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
-        .prose ul { list-style-type: disc; padding-left: 20px; margin-bottom: 10px; }
-        .prose ol { list-style-type: decimal; padding-left: 20px; margin-bottom: 10px; }
-        .prose p { margin-bottom: 10px; }
-        .prose strong { font-weight: 800; color: #4338ca; }
+        
+        /* Animasi Background Blob */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob { animation: blob 7s infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
+        
+        /* Efek Kaca (Glassmorphism) */
+        .glass { 
+            background: rgba(255, 255, 255, 0.65); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Typography */
+        .prose p { margin-bottom: 0.5rem; line-height: 1.6; color: #475569; }
+        .prose ul { list-style-type: disc; padding-left: 1.5rem; color: #475569; }
+        .prose strong { color: #4f46e5; font-weight: 700; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 min-h-screen relative">
-    <nav class="glass sticky top-0 z-50">
-        <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-            <span class="text-xl font-extrabold text-slate-900">LogicLife<span class="text-indigo-600">.</span></span>
-            <div class="flex gap-6">
-                <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Produk</a>
+<body class="bg-slate-50 text-slate-800 min-h-screen relative overflow-x-hidden">
+
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob"></div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-8 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-40 animate-blob animation-delay-4000"></div>
+    </div>
+
+    <nav class="glass sticky top-0 z-50 shadow-sm">
+        <div class="container mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <span class="text-2xl font-black text-slate-900 tracking-tight">LogicLife<span class="text-indigo-600">.</span></span>
             </div>
+            <a href="#products" class="px-6 py-2.5 rounded-full bg-slate-900 text-white font-bold text-sm hover:bg-indigo-600 transition shadow-lg hover:shadow-indigo-500/30">
+                Lihat Produk
+            </a>
         </div>
     </nav>
 
-    <header class="pt-24 pb-20 px-6 text-center">
-        <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6">Solusi Digital <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Tanpa Batas</span></h1>
-        <p class="text-lg text-slate-600 mb-8">Ekosistem aplikasi untuk produktivitas bisnis dan personal Anda.</p>
-        <a href="#products" class="bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-xl hover:bg-slate-800 transition">Lihat Produk</a>
+    <header class="pt-32 pb-20 px-6 text-center relative">
+        <span class="inline-block py-1 px-3 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold tracking-wider mb-6 border border-indigo-200">
+            ✨ ECOSYSTEM FOR PRODUCTIVITY
+        </span>
+        <h1 class="text-5xl md:text-7xl font-black text-slate-900 mb-6 leading-tight">
+            Solusi Digital <br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 animate-pulse">Tanpa Batas</span>
+        </h1>
+        <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
+            Kumpulan aplikasi cerdas yang dirancang untuk meningkatkan produktivitas bisnis dan kebahagiaan personal Anda.
+        </p>
     </header>
 
-    <section id="products" class="container mx-auto px-6 py-10 mb-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <section id="products" class="container mx-auto px-4 pb-32">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {% for item in products %}
-            <div class="glass bg-white/80 rounded-3xl shadow-xl overflow-hidden flex flex-col hover:-translate-y-2 transition duration-300">
-                <div class="h-64 w-full bg-white relative overflow-hidden p-4 flex items-center justify-center">
-                    <img src="{{ item.image_url }}" class="w-full h-full object-contain" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+            <div class="glass-card rounded-3xl overflow-hidden flex flex-col relative group">
+                <div class="h-64 w-full bg-gradient-to-br from-slate-50 to-slate-100 relative overflow-hidden p-8 flex items-center justify-center border-b border-slate-100">
+                    <img src="{{ item.image_url }}" class="w-full h-full object-contain drop-shadow-2xl transition duration-500 group-hover:scale-110" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
+                    <div class="absolute top-4 left-4 bg-white/80 backdrop-blur px-3 py-1 rounded-lg text-[10px] font-bold text-slate-500 border border-slate-200 shadow-sm">
+                        {{ item.prefix }} SERIES
+                    </div>
                 </div>
-                <div class="p-8 flex-grow flex flex-col bg-white/50">
-                    <h2 class="text-2xl font-extrabold mb-1">{{ item.name }}</h2>
-                    <p class="text-indigo-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
+
+                <div class="p-8 flex-grow flex flex-col">
+                    <div class="mb-4">
+                        <h2 class="text-2xl font-black text-slate-900 mb-1">{{ item.name }}</h2>
+                        <p class="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 uppercase tracking-wide">
+                            {{ item.tagline }}
+                        </p>
+                    </div>
                     
-                    <div class="text-slate-500 text-sm mb-6 prose">
+                    <div class="text-sm text-slate-500 mb-8 prose line-clamp-4">
                         {{ item.description | safe }}
                     </div>
                     
-                    <div class="mt-auto pt-6 border-t border-slate-100">
-                        <div class="flex flex-col mb-4">
-                            <span class="text-xs line-through text-slate-400">Rp {{ item.original_price }}</span>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-extrabold text-slate-800">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
-                                <span class="text-sm font-bold text-slate-500">{{ item.unit or '' }}</span>
+                    <div class="mt-auto">
+                        <div class="flex items-end gap-2 mb-6 pb-6 border-b border-slate-200/60">
+                            <div>
+                                <p class="text-xs text-slate-400 line-through mb-1">Rp {{ item.original_price }}</p>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-sm font-bold text-indigo-600">Rp</span>
+                                    <span class="text-4xl font-black text-slate-900">{{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
+                                </div>
                             </div>
+                            <span class="text-sm font-medium text-slate-500 mb-1">{{ item.unit or '' }}</span>
                         </div>
+
                         <form action="/checkout" method="POST">
                             <input type="hidden" name="product_id" value="{{ item.id }}">
-                            <div class="mb-3">
-                                <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Email Akun Anda (Untuk Aktivasi)</label>
-                                <input type="email" name="customer_email" placeholder="contoh@gmail.com" class="w-full border border-slate-300 bg-slate-50 px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-indigo-500 transition" required>
+                            
+                            <div class="mb-4">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 block">Aktivasi ke Email</label>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
+                                    </div>
+                                    <input type="email" name="customer_email" placeholder="nama@email.com" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition" required>
+                                </div>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-2">
+                            <div class="grid grid-cols-2 gap-3">
                                 {% if item.download_url %}
-                                <a href="{{ item.download_url }}" target="_blank" class="flex items-center justify-center bg-white border border-slate-300 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition shadow-sm gap-1 group">
-                                    <svg class="w-5 h-5 text-slate-500 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    <span class="text-sm">UNDUH</span>
+                                <a href="{{ item.download_url }}" target="_blank" class="flex items-center justify-center px-4 py-3.5 border border-slate-200 rounded-xl text-slate-700 font-bold text-sm hover:bg-slate-50 hover:border-slate-300 transition group">
+                                    <svg class="w-4 h-4 mr-2 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                    UNDUH
                                 </a>
                                 {% else %}
-                                <div class="flex items-center justify-center bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed border border-slate-200">
-                                    Coming Soon
+                                <div class="flex items-center justify-center px-4 py-3.5 bg-slate-100 rounded-xl text-slate-400 font-bold text-sm cursor-not-allowed">
+                                    Belum Rilis
                                 </div>
                                 {% endif %}
 
-                                <button type="submit" class="bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition shadow-lg flex justify-center items-center gap-1 group">
-                                    <svg class="w-5 h-5 text-yellow-400 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                                    <span class="text-sm">BELI PRO</span>
+                                <button type="submit" class="flex items-center justify-center px-4 py-3.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-indigo-600 transition shadow-lg hover:shadow-indigo-500/30 group">
+                                    BELI PRO
+                                    <svg class="w-4 h-4 ml-2 text-indigo-400 group-hover:text-white transition group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                                 </button>
                             </div>
                         </form>
@@ -83,27 +149,41 @@
                 </div>
             </div>
             {% else %}
-            <div class="col-span-3 text-center py-20 text-slate-400">Belum ada produk. Silakan tambah di Admin.</div>
+            <div class="col-span-3 text-center py-32">
+                <div class="inline-block p-6 rounded-full bg-slate-100 mb-4">
+                    <svg class="w-12 h-12 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold text-slate-600">Belum ada produk</h3>
+                <p class="text-slate-400">Silakan tambahkan produk baru di halaman Admin.</p>
+            </div>
             {% endfor %}
         </div>
     </section>
     
-    <footer class="bg-slate-900 text-slate-300 py-16 text-center relative overflow-hidden z-20">
+    <footer class="bg-slate-900 text-white py-20 relative overflow-hidden">
         <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-        <div class="container mx-auto px-6 relative z-30">
-            <div class="mb-8">
-                <p class="mb-2 font-bold text-white text-2xl tracking-tight">{{ contact.company }}</p>
-                <p class="text-slate-400 max-w-md mx-auto">{{ contact.address }}</p>
+        <div class="absolute -bottom-20 -right-20 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+        <div class="container mx-auto px-6 relative z-10 text-center">
+            <div class="mb-10">
+                <h3 class="text-2xl font-black mb-2 tracking-tight">{{ contact.company }}</h3>
+                <p class="text-slate-400 max-w-md mx-auto leading-relaxed">{{ contact.address }}</p>
             </div>
-            <div class="flex flex-wrap justify-center gap-4 mb-10">
-                <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white cursor-pointer">
-                    WhatsApp Support
+            
+            <div class="flex flex-wrap justify-center gap-4 mb-12">
+                <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="px-8 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur transition flex items-center gap-3 font-bold group">
+                    <svg class="w-5 h-5 text-green-400 group-hover:scale-110 transition" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                    WhatsApp
                 </a>
-                <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white cursor-pointer">
+                <a href="mailto:{{ contact.email }}" target="_blank" class="px-8 py-4 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 backdrop-blur transition flex items-center gap-3 font-bold group">
+                    <svg class="w-5 h-5 text-indigo-400 group-hover:scale-110 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     {{ contact.email }}
                 </a>
             </div>
-            <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem.</p>
+            
+            <div class="pt-8 border-t border-white/10 text-xs text-slate-500 font-medium tracking-wide">
+                &copy; 2026 LOGICLIFE ECOSYSTEM. ALL RIGHTS RESERVED.
+            </div>
         </div>
     </footer>
 </body>
