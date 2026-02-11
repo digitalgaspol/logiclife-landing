@@ -131,10 +131,23 @@ def home():
             </div>
         </section>
         
-        <footer class="bg-slate-900 text-slate-300 py-10 text-center">
-            <p class="font-bold text-white text-xl mb-2">{{ contact.company }}</p>
-            <p class="mb-4">{{ contact.address }}</p>
-            <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem.</p>
+        <footer class="bg-slate-900 text-slate-300 py-16 text-center relative overflow-hidden z-20">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+            <div class="container mx-auto px-6 relative z-30">
+                <div class="mb-8">
+                    <p class="mb-2 font-bold text-white text-2xl tracking-tight">{{ contact.company }}</p>
+                    <p class="text-slate-400 max-w-md mx-auto">{{ contact.address }}</p>
+                </div>
+                <div class="flex flex-wrap justify-center gap-4 mb-10">
+                    <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white cursor-pointer">
+                        WhatsApp Support
+                    </a>
+                    <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white cursor-pointer">
+                        {{ contact.email }}
+                    </a>
+                </div>
+                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem.</p>
+            </div>
         </footer>
     </body>
     </html>
@@ -288,7 +301,7 @@ def callback(): return "OK"
 def finish(): return "<h1>Transaksi Selesai! Terima kasih.</h1>"
 
 # ==============================================================================
-# 🔐 5. ADMIN PANEL (FULL FITUR)
+# 🔐 5. ADMIN PANEL (FULL FITUR + EDITOR)
 # ==============================================================================
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
