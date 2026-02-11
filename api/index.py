@@ -73,7 +73,6 @@ def home():
         <style>
             body { font-family: 'Outfit', sans-serif; }
             .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
-            /* Styling untuk hasil text editor */
             .prose ul { list-style-type: disc; padding-left: 20px; margin-bottom: 10px; }
             .prose ol { list-style-type: decimal; padding-left: 20px; margin-bottom: 10px; }
             .prose p { margin-bottom: 10px; }
@@ -86,7 +85,7 @@ def home():
                 <span class="text-xl font-extrabold text-slate-900">LogicLife<span class="text-indigo-600">.</span></span>
                 <div class="flex gap-6">
                     <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Produk</a>
-                    </div>
+                </div>
             </div>
         </nav>
 
@@ -289,7 +288,7 @@ def callback(): return "OK"
 def finish(): return "<h1>Transaksi Selesai! Terima kasih.</h1>"
 
 # ==============================================================================
-# 🔐 5. ADMIN PANEL (UPDATE: RICH TEXT EDITOR)
+# 🔐 5. ADMIN PANEL (FULL FITUR)
 # ==============================================================================
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -483,33 +482,64 @@ def edit_product_page(id):
     return render_template_string('''
     <!DOCTYPE html><html lang="id">
     <head>
-        <title>Edit</title>
+        <title>Edit Produk</title>
         <script src="https://cdn.tailwindcss.com"></script>
         <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     </head>
-    <body class="bg-slate-100 p-10 flex justify-center">
-        <div class="bg-white p-8 rounded-xl shadow w-full max-w-md">
-            <h2 class="font-bold text-xl mb-4">Edit Produk</h2>
+    <body class="bg-slate-100 p-10 flex justify-center min-h-screen items-center">
+        <div class="bg-white p-8 rounded-xl shadow w-full max-w-2xl">
+            <h2 class="font-bold text-xl mb-4 text-slate-700">✏️ Edit Produk Lengkap</h2>
             <form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-3">
-                <label class="text-xs font-bold uppercase">Nama</label>
-                <input type="text" name="name" value="{{ product.name }}" class="border p-2 w-full rounded">
                 
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="text-xs font-bold uppercase">Harga (Angka)</label>
-                        <input type="number" name="price" value="{{ product.price }}" class="border p-2 w-full rounded">
+                        <label class="text-xs font-bold uppercase text-slate-500">Nama Produk</label>
+                        <input type="text" name="name" value="{{ product.name }}" class="border p-2 w-full rounded bg-slate-50">
                     </div>
                     <div>
-                        <label class="text-xs font-bold uppercase">Unit (/bulan)</label>
-                        <input type="text" name="unit" value="{{ product.unit or '' }}" class="border p-2 w-full rounded">
+                        <label class="text-xs font-bold uppercase text-slate-500">Tagline</label>
+                        <input type="text" name="tagline" value="{{ product.tagline }}" class="border p-2 w-full rounded bg-slate-50">
                     </div>
                 </div>
 
-                <label class="text-xs font-bold uppercase">Deskripsi</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="text-xs font-bold uppercase text-slate-500">Harga (Angka)</label>
+                        <input type="number" name="price" value="{{ product.price }}" class="border p-2 w-full rounded bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-slate-500">Unit (/bulan)</label>
+                        <input type="text" name="unit" value="{{ product.unit or '' }}" class="border p-2 w-full rounded bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-slate-500">Harga Coret</label>
+                        <input type="text" name="original_price" value="{{ product.original_price }}" class="border p-2 w-full rounded bg-slate-50">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs font-bold uppercase text-slate-500">Prefix Order</label>
+                        <input type="text" name="prefix" value="{{ product.prefix }}" class="border p-2 w-full rounded bg-slate-50">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase text-slate-500">Link Gambar</label>
+                        <input type="text" name="image_url" value="{{ product.image_url }}" class="border p-2 w-full rounded bg-slate-50">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Link Download</label>
+                    <input type="text" name="download_url" value="{{ product.download_url }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+
+                <label class="text-xs font-bold uppercase text-slate-500 mt-2">Deskripsi Produk</label>
                 <textarea name="description" class="border p-2 w-full rounded">{{ product.description }}</textarea>
                 
-                <button class="bg-indigo-600 text-white w-full py-2 rounded font-bold">UPDATE</button>
-                <a href="/admin" class="block text-center mt-2 text-slate-500">Batal</a>
+                <div class="flex gap-2 mt-4">
+                    <a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a>
+                    <button class="bg-indigo-600 text-white w-2/3 py-3 rounded-lg font-bold shadow hover:bg-indigo-700">UPDATE DATA</button>
+                </div>
             </form>
         </div>
         <script>CKEDITOR.replace('description');</script>
@@ -519,12 +549,20 @@ def edit_product_page(id):
 @app.route('/admin/update/<id>', methods=['POST'])
 def update_product_logic(id):
     if not session.get('is_admin'): return redirect('/admin')
+    
+    # 👇 LOGIKA UPDATE DATA LENGKAP
     data = { 
         "name": request.form.get('name'), 
+        "tagline": request.form.get('tagline'),
         "price": int(request.form.get('price')), 
         "unit": request.form.get('unit'),
+        "original_price": request.form.get('original_price'),
+        "prefix": request.form.get('prefix'),
+        "image_url": request.form.get('image_url'),
+        "download_url": request.form.get('download_url'),
         "description": request.form.get('description') 
     }
+    
     if db: db.collection('products').document(id).update(data)
     return redirect('/admin')
 
