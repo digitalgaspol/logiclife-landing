@@ -16,8 +16,9 @@ app.secret_key = 'rahasia_negara_bos_nexa'
 MERCHANT_CODE = "DS28030"      
 API_KEY = "58191656b8692a368c766a9ca4124ee0"      
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry"
-PAYMENT_METHOD = "SP" 
-ADMIN_PIN = "M3isy4851" 
+PAYMENT_METHOD = "SP" # QRIS ShopeePay Sandbox
+
+ADMIN_PIN = "M3isy4851" # PIN Admin Bos
 
 # ==============================================================================
 # 🔥 INIT FIREBASE
@@ -72,6 +73,11 @@ def home():
         <style>
             body { font-family: 'Outfit', sans-serif; }
             .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+            /* Styling untuk hasil text editor */
+            .prose ul { list-style-type: disc; padding-left: 20px; margin-bottom: 10px; }
+            .prose ol { list-style-type: decimal; padding-left: 20px; margin-bottom: 10px; }
+            .prose p { margin-bottom: 10px; }
+            .prose strong { font-weight: 800; color: #4338ca; }
         </style>
     </head>
     <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 min-h-screen relative">
@@ -80,8 +86,7 @@ def home():
                 <span class="text-xl font-extrabold text-slate-900">LogicLife<span class="text-indigo-600">.</span></span>
                 <div class="flex gap-6">
                     <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Produk</a>
-                    <a href="/admin" class="text-sm font-medium text-slate-500 hover:text-slate-900">Login Admin</a>
-                </div>
+                    </div>
             </div>
         </nav>
 
@@ -101,7 +106,10 @@ def home():
                     <div class="p-8 flex-grow flex flex-col bg-white/50">
                         <h2 class="text-2xl font-extrabold mb-1">{{ item.name }}</h2>
                         <p class="text-indigo-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
-                        <p class="text-slate-500 text-sm mb-6">{{ item.description }}</p>
+                        
+                        <div class="text-slate-500 text-sm mb-6 prose">
+                            {{ item.description | safe }}
+                        </div>
                         
                         <div class="mt-auto pt-6 border-t border-slate-100">
                             <div class="flex flex-col mb-4">
@@ -157,7 +165,7 @@ def get_pricing():
     })
 
 # ==============================================================================
-# 🛒 3. PROSES BAYAR "PRO LIFETIME"
+# 🛒 3. PROSES BAYAR
 # ==============================================================================
 @app.route('/buy_pro')
 def buy_pro():
@@ -281,7 +289,7 @@ def callback(): return "OK"
 def finish(): return "<h1>Transaksi Selesai! Terima kasih.</h1>"
 
 # ==============================================================================
-# 🔐 5. ADMIN PANEL (UPDATE: KOLOM PERIODE)
+# 🔐 5. ADMIN PANEL (UPDATE: RICH TEXT EDITOR)
 # ==============================================================================
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -314,7 +322,11 @@ def admin():
     return render_template_string('''
     <!DOCTYPE html>
     <html lang="id">
-    <head><title>Admin LogicLife</title><script src="https://cdn.tailwindcss.com"></script></head>
+    <head>
+        <title>Admin LogicLife</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    </head>
     <body class="bg-slate-100 p-10 font-sans">
         <div class="max-w-6xl mx-auto">
             <div class="flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm">
@@ -351,7 +363,6 @@ def admin():
                         <input type="text" name="address" value="{{ contact.address }}" placeholder="Alamat" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="number" name="whatsapp" value="{{ contact.whatsapp }}" placeholder="No WA (62...)" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="email" name="email" value="{{ contact.email }}" placeholder="Email" class="w-full border bg-slate-50 p-2 rounded" required>
-                        
                         <button class="bg-emerald-600 text-white w-full py-3 rounded-lg font-bold hover:bg-emerald-700 shadow-lg mt-2">💾 SIMPAN SEMUA</button>
                     </form>
                 </div>
@@ -359,7 +370,7 @@ def admin():
                 <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-indigo-600">
                     <h2 class="text-xl font-bold mb-6 text-indigo-900">📦 Tambah Produk Digital</h2>
                     <form action="/admin/add" method="POST" class="grid gap-3">
-                        <input type="text" name="name" placeholder="Nama Produk (Misal: Ebook Viral)" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <input type="text" name="name" placeholder="Nama Produk" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="text" name="tagline" placeholder="Tagline Pendek" class="w-full border bg-slate-50 p-2 rounded" required>
                         
                         <div class="grid grid-cols-3 gap-2">
@@ -371,7 +382,10 @@ def admin():
                         <input type="text" name="prefix" placeholder="Prefix Order (Contoh: BOOK-)" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="text" name="image_url" placeholder="Link Gambar (https://...)" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="text" name="download_url" placeholder="Link Download File" class="w-full border bg-slate-50 p-2 rounded">
-                        <textarea name="description" placeholder="Deskripsi Produk..." class="w-full border bg-slate-50 p-2 rounded" rows="3" required></textarea>
+                        
+                        <label class="text-xs font-bold uppercase mt-2">Deskripsi Produk</label>
+                        <textarea name="description" placeholder="Deskripsi..." class="w-full border bg-slate-50 p-2 rounded" rows="3" required></textarea>
+                        
                         <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg mt-2">+ UPLOAD PRODUK</button>
                     </form>
                 </div>
@@ -389,7 +403,6 @@ def admin():
                                 <p class="text-xs font-bold text-emerald-600">Rp {{ item.price }}</p>
                                 <p class="text-xs text-slate-400">{{ item.unit or '' }}</p>
                             </div>
-                            <p class="text-xs text-slate-400 mt-1">{{ item.prefix }}...</p>
                         </div>
                         <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
                             <a href="/admin/edit/{{ item.id }}" class="bg-yellow-100 text-yellow-700 p-2 rounded hover:bg-yellow-200 text-xs">✏️</a>
@@ -400,6 +413,10 @@ def admin():
                 </div>
             </div>
         </div>
+
+        <script>
+            CKEDITOR.replace('description');
+        </script>
     </body>
     </html>
     ''', products=products_data, contact=contact_data, pricing=pricing_data)
@@ -435,8 +452,8 @@ def add_product():
     data = { 
         "name": request.form.get('name'), 
         "tagline": request.form.get('tagline'), 
-        "price": int(request.form.get('price')), # Tetap Angka
-        "unit": request.form.get('unit'), # 👇 Kolom Baru
+        "price": int(request.form.get('price')), 
+        "unit": request.form.get('unit'), 
         "original_price": request.form.get('original_price'), 
         "prefix": request.form.get('prefix'), 
         "description": request.form.get('description'), 
@@ -464,7 +481,12 @@ def edit_product_page(id):
             product['id'] = doc.id
     
     return render_template_string('''
-    <!DOCTYPE html><html lang="id"><head><title>Edit</title><script src="https://cdn.tailwindcss.com"></script></head>
+    <!DOCTYPE html><html lang="id">
+    <head>
+        <title>Edit</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    </head>
     <body class="bg-slate-100 p-10 flex justify-center">
         <div class="bg-white p-8 rounded-xl shadow w-full max-w-md">
             <h2 class="font-bold text-xl mb-4">Edit Produk</h2>
@@ -490,6 +512,7 @@ def edit_product_page(id):
                 <a href="/admin" class="block text-center mt-2 text-slate-500">Batal</a>
             </form>
         </div>
+        <script>CKEDITOR.replace('description');</script>
     </body></html>
     ''', product=product)
 
@@ -499,7 +522,7 @@ def update_product_logic(id):
     data = { 
         "name": request.form.get('name'), 
         "price": int(request.form.get('price')), 
-        "unit": request.form.get('unit'), # 👇 Update Unit Juga
+        "unit": request.form.get('unit'),
         "description": request.form.get('description') 
     }
     if db: db.collection('products').document(id).update(data)
