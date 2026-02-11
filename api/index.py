@@ -73,6 +73,7 @@ def home():
         <style>
             body { font-family: 'Outfit', sans-serif; }
             .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
+            /* Styling untuk hasil text editor */
             .prose ul { list-style-type: disc; padding-left: 20px; margin-bottom: 10px; }
             .prose ol { list-style-type: decimal; padding-left: 20px; margin-bottom: 10px; }
             .prose p { margin-bottom: 10px; }
@@ -85,7 +86,7 @@ def home():
                 <span class="text-xl font-extrabold text-slate-900">LogicLife<span class="text-indigo-600">.</span></span>
                 <div class="flex gap-6">
                     <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Produk</a>
-                </div>
+                    </div>
             </div>
         </nav>
 
@@ -120,6 +121,11 @@ def home():
                             </div>
                             <form action="/checkout" method="POST">
                                 <input type="hidden" name="product_id" value="{{ item.id }}">
+                                <div class="mb-3">
+                                    <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Email Akun Anda</label>
+                                    <input type="email" name="customer_email" placeholder="contoh@gmail.com" class="w-full border border-slate-300 bg-slate-50 px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-indigo-500" required>
+                                    <p class="text-[10px] text-slate-400 mt-1">*Pastikan email ini aktif / digunakan di aplikasi</p>
+                                </div>
                                 <button class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition shadow-lg">BELI LISENSI</button>
                             </form>
                         </div>
@@ -177,7 +183,7 @@ def get_pricing():
     })
 
 # ==============================================================================
-# 🛒 3. PROSES BAYAR
+# 🛒 3. PROSES BAYAR APLIKASI (DIRECT APP)
 # ==============================================================================
 @app.route('/buy_pro')
 def buy_pro():
@@ -255,21 +261,38 @@ def success_pro():
     return "<h1>Pembayaran Berhasil! Silakan kembali ke Aplikasi.</h1>"
 
 # ==============================================================================
-# 🛒 4. CHECKOUT PRODUK BIASA
+# 🛒 4. CHECKOUT WEB (DENGAN EMAIL MATCHING)
 # ==============================================================================
 @app.route('/checkout', methods=['POST'])
 def checkout():
     product_id = request.form.get('product_id')
+    customer_email = request.form.get('customer_email') # 👇 Tangkap Email
+    
+    if not customer_email: return "Error: Email wajib diisi!"
+
     product = None
     if db:
         doc = db.collection('products').document(product_id).get()
         if doc.exists: product = doc.to_dict()
+    
     if not product: return "Error: Produk tidak ditemukan."
     
     amount = int(product['price'])
     product_name = product['name']
+    
+    # Order ID Unik
     order_id = product['prefix'] + str(random.randint(10000, 99999))
     
+    # 🔥 SIMPAN TRANSAKSI SEMENTARA (Buat cek email nanti)
+    if db:
+        db.collection('pending_transactions').document(order_id).set({
+            'email': customer_email,
+            'product_id': product_id,
+            'product_name': product_name,
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'status': 'pending'
+        })
+
     signature_str = MERCHANT_CODE + order_id + str(amount) + API_KEY
     signature = hashlib.md5(signature_str.encode('utf-8')).hexdigest()
     
@@ -278,9 +301,9 @@ def checkout():
         "paymentAmount": amount,
         "merchantOrderId": order_id,
         "productDetails": product_name,
-        "email": "customer@example.com",
+        "email": customer_email, 
         "paymentMethod": PAYMENT_METHOD,
-        "callbackUrl": "https://logiclife.site/callback",
+        "callbackUrl": "https://logiclife.site/callback", 
         "returnUrl": "https://logiclife.site/finish",
         "signature": signature,
         "expiryPeriod": 60
@@ -294,14 +317,58 @@ def checkout():
         return f"Error Duitku: {data}"
     except Exception as e: return str(e)
 
+# CALLBACK WEB (LOGIKA EMAIL MATCHING)
 @app.route('/callback', methods=['POST'])
-def callback(): return "OK"
+def callback():
+    data = request.form
+    merchantOrderId = data.get('merchantOrderId')
+    resultCode = data.get('resultCode')
+
+    if resultCode == '00': 
+        if db:
+            txn_ref = db.collection('pending_transactions').document(merchantOrderId)
+            txn_doc = txn_ref.get()
+            
+            if txn_doc.exists:
+                txn_data = txn_doc.to_dict()
+                email = txn_data.get('email')
+                product_name = txn_data.get('product_name', '').lower()
+                
+                # 1. Cari User di Database
+                users_ref = db.collection('users')
+                query = users_ref.where('email', '==', email).limit(1).stream()
+                
+                user_found = False
+                for user_doc in query:
+                    user_found = True
+                    uid = user_doc.id
+                    
+                    # 2. Upgrade User (Kalo ketemu)
+                    update_data = {}
+                    if 'moodly' in product_name:
+                        update_data = {'is_pro_moodly': True}
+                    elif 'nexapos' in product_name:
+                        update_data = {'is_pro': True}
+                    
+                    if update_data:
+                        db.collection('users').document(uid).set(update_data, merge=True)
+                
+                # 3. Kalo User Belum Daftar (Simpan Tiket Pending)
+                if not user_found:
+                    db.collection('prepaid_upgrades').document(email).set({
+                        'product_name': product_name,
+                        'paid_at': firestore.SERVER_TIMESTAMP
+                    })
+
+                txn_ref.update({'status': 'success'})
+
+    return "OK"
 
 @app.route('/finish')
 def finish(): return "<h1>Transaksi Selesai! Terima kasih.</h1>"
 
 # ==============================================================================
-# 🔐 5. ADMIN PANEL (FULL FITUR + EDITOR)
+# 🔐 5. ADMIN PANEL (LENGKAP + EDITOR + EDIT + UNIT)
 # ==============================================================================
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
@@ -434,7 +501,7 @@ def admin():
     ''', products=products_data, contact=contact_data, pricing=pricing_data)
 
 # ==============================================================================
-# ⚙️ 6. ROUTE CRUD ADMIN
+# ⚙️ 6. ROUTE CRUD ADMIN (FULL EDIT)
 # ==============================================================================
 @app.route('/admin/settings', methods=['POST'])
 def update_settings():
@@ -563,7 +630,6 @@ def edit_product_page(id):
 def update_product_logic(id):
     if not session.get('is_admin'): return redirect('/admin')
     
-    # 👇 LOGIKA UPDATE DATA LENGKAP
     data = { 
         "name": request.form.get('name'), 
         "tagline": request.form.get('tagline'),
