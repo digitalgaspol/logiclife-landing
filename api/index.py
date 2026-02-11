@@ -16,9 +16,8 @@ app.secret_key = 'rahasia_negara_bos_nexa'
 MERCHANT_CODE = "DS28030"      
 API_KEY = "58191656b8692a368c766a9ca4124ee0"      
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry"
-PAYMENT_METHOD = "SP" # QRIS ShopeePay Sandbox
-
-ADMIN_PIN = "M3isy4851" # PIN Admin Bos
+PAYMENT_METHOD = "SP" 
+ADMIN_PIN = "M3isy4851" 
 
 # ==============================================================================
 # 🔥 INIT FIREBASE
@@ -51,18 +50,15 @@ def home():
     }
 
     if db:
-        # Load Produk
         docs = db.collection('products').stream()
         for doc in docs:
             prod = doc.to_dict()
             prod['id'] = doc.id
             products_data.append(prod)
         
-        # Load Kontak
         settings_doc = db.collection('settings').document('contact').get()
         if settings_doc.exists:
-            db_contact = settings_doc.to_dict()
-            contact_data.update(db_contact)
+            contact_data.update(settings_doc.to_dict())
     
     return render_template_string('''
     <!DOCTYPE html>
@@ -108,9 +104,12 @@ def home():
                         <p class="text-slate-500 text-sm mb-6">{{ item.description }}</p>
                         
                         <div class="mt-auto pt-6 border-t border-slate-100">
-                            <div class="flex justify-between items-center mb-4">
-                                <span class="text-3xl font-extrabold">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
-                                <span class="text-xs line-through text-slate-400 bg-slate-100 px-2 py-1 rounded">Rp {{ item.original_price }}</span>
+                            <div class="flex flex-col mb-4">
+                                <span class="text-xs line-through text-slate-400">Rp {{ item.original_price }}</span>
+                                <div class="flex items-baseline gap-1">
+                                    <span class="text-3xl font-extrabold text-slate-800">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
+                                    <span class="text-sm font-bold text-slate-500">{{ item.unit or '' }}</span>
+                                </div>
                             </div>
                             <form action="/checkout" method="POST">
                                 <input type="hidden" name="product_id" value="{{ item.id }}">
@@ -135,22 +134,21 @@ def home():
     ''', products=products_data, contact=contact_data)
 
 # ==============================================================================
-# 💰 2. API PRICING (MULTI-APP SUPPORT)
+# 💰 2. API PRICING
 # ==============================================================================
 @app.route('/api/get_pricing')
 def get_pricing():
-    app_id = request.args.get('app_id') # nexapos atau moodly
-    price = 150000 # Default fallback
+    app_id = request.args.get('app_id')
+    price = 150000 
     
     if db:
         doc = db.collection('settings').document('pricing').get()
         if doc.exists:
             data = doc.to_dict()
-            # 👇 PILIH HARGA SESUAI ID APLIKASI
             if app_id == 'moodly':
                 price = data.get('moodly_price', 50000)
             else:
-                price = data.get('nexapos_price', 150000) # Default NexaPOS
+                price = data.get('nexapos_price', 150000)
     
     return jsonify({
         "app_id": app_id,
@@ -159,17 +157,16 @@ def get_pricing():
     })
 
 # ==============================================================================
-# 🛒 3. PROSES BAYAR "PRO LIFETIME" (MULTI-APP)
+# 🛒 3. PROSES BAYAR "PRO LIFETIME"
 # ==============================================================================
 @app.route('/buy_pro')
 def buy_pro():
     uid = request.args.get('uid')
     email = request.args.get('email')
-    app_id = request.args.get('app_id') # 👇 Diterima dari Aplikasi
+    app_id = request.args.get('app_id') 
     
     if not uid: return "Error: User ID tidak ditemukan."
 
-    # A. TENTUKAN HARGA & NAMA PRODUK
     product_price = 150000
     product_name = "NexaPOS PRO Lifetime"
 
@@ -184,14 +181,10 @@ def buy_pro():
                 product_price = int(data.get('nexapos_price', 150000))
                 product_name = "NexaPOS PRO Lifetime"
 
-    # B. BUAT ORDER ID UNIK (Format: PRO-APPID-UID-ACAK)
     order_id = f"PRO-{app_id}-{uid}-{random.randint(100,999)}"
-    
-    # C. HITUNG SIGNATURE DUITKU
     signature_str = MERCHANT_CODE + order_id + str(product_price) + API_KEY
     signature = hashlib.md5(signature_str.encode('utf-8')).hexdigest()
 
-    # D. KIRIM KE DUITKU
     payload = {
         "merchantCode": MERCHANT_CODE,
         "paymentAmount": product_price,
@@ -219,16 +212,14 @@ def callback_pro():
     merchantOrderId = data.get('merchantOrderId') 
     resultCode = data.get('resultCode')
 
-    if resultCode == '00': # Pembayaran Sukses
-        # Format Order ID: PRO-nexapos-UIDUser-123
+    if resultCode == '00': 
         parts = merchantOrderId.split('-')
         if len(parts) >= 3:
-            app_id = parts[1] # nexapos atau moodly
+            app_id = parts[1] 
             uid = parts[2]
             
             if db:
-                # Update Status Sesuai Aplikasi
-                field_to_update = 'is_pro' # Default NexaPOS
+                field_to_update = 'is_pro'
                 if app_id == 'moodly':
                     field_to_update = 'is_pro_moodly'
 
@@ -244,7 +235,7 @@ def success_pro():
     return "<h1>Pembayaran Berhasil! Silakan kembali ke Aplikasi.</h1>"
 
 # ==============================================================================
-# 🛒 4. CHECKOUT PRODUK BIASA (EBOOK/COURSE)
+# 🛒 4. CHECKOUT PRODUK BIASA
 # ==============================================================================
 @app.route('/checkout', methods=['POST'])
 def checkout():
@@ -284,19 +275,16 @@ def checkout():
     except Exception as e: return str(e)
 
 @app.route('/callback', methods=['POST'])
-def callback():
-    return "OK"
+def callback(): return "OK"
 
 @app.route('/finish')
-def finish():
-    return "<h1>Transaksi Selesai! Terima kasih.</h1>"
+def finish(): return "<h1>Transaksi Selesai! Terima kasih.</h1>"
 
 # ==============================================================================
-# 🔐 5. ADMIN PANEL (LENGKAP: CRUD + SETTING 2 HARGA)
+# 🔐 5. ADMIN PANEL (UPDATE: KOLOM PERIODE)
 # ==============================================================================
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    # A. LOGIC LOGIN
     if request.method == 'POST':
         if request.form.get('pin') == ADMIN_PIN:
             session['is_admin'] = True
@@ -306,28 +294,23 @@ def admin():
     if not session.get('is_admin'):
         return render_template_string('<form method="POST" style="text-align:center;padding:50px;font-family:sans-serif;"><h2>Admin Login</h2><input type="password" name="pin" placeholder="PIN Rahasia" style="padding:10px;"><br><br><button style="padding:10px 20px;">Masuk</button></form>')
 
-    # B. LOAD DATA
     products_data = []
     contact_data = {"company": "", "address": "", "whatsapp": "", "email": ""}
-    pricing_data = {"nexapos_price": 150000, "moodly_price": 50000} # Default
+    pricing_data = {"nexapos_price": 150000, "moodly_price": 50000} 
 
     if db:
-        # Load Produk
         docs = db.collection('products').stream()
         for doc in docs:
             prod = doc.to_dict()
             prod['id'] = doc.id
             products_data.append(prod)
         
-        # Load Kontak
         settings_doc = db.collection('settings').document('contact').get()
         if settings_doc.exists: contact_data = settings_doc.to_dict()
 
-        # Load Harga (Multi-App)
         price_doc = db.collection('settings').document('pricing').get()
         if price_doc.exists: pricing_data = price_doc.to_dict()
 
-    # C. RENDER ADMIN DASHBOARD
     return render_template_string('''
     <!DOCTYPE html>
     <html lang="id">
@@ -378,10 +361,13 @@ def admin():
                     <form action="/admin/add" method="POST" class="grid gap-3">
                         <input type="text" name="name" placeholder="Nama Produk (Misal: Ebook Viral)" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="text" name="tagline" placeholder="Tagline Pendek" class="w-full border bg-slate-50 p-2 rounded" required>
-                        <div class="grid grid-cols-2 gap-2">
-                            <input type="number" name="price" placeholder="Harga Jual" class="w-full border bg-slate-50 p-2 rounded" required>
-                            <input type="text" name="original_price" placeholder="Harga Coret" class="w-full border bg-slate-50 p-2 rounded" required>
+                        
+                        <div class="grid grid-cols-3 gap-2">
+                            <input type="number" name="price" placeholder="Harga Angka" class="col-span-1 w-full border bg-slate-50 p-2 rounded" required>
+                            <input type="text" name="unit" placeholder="/tahun (Opsional)" class="col-span-1 w-full border bg-slate-50 p-2 rounded">
+                            <input type="text" name="original_price" placeholder="Harga Coret" class="col-span-1 w-full border bg-slate-50 p-2 rounded" required>
                         </div>
+
                         <input type="text" name="prefix" placeholder="Prefix Order (Contoh: BOOK-)" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="text" name="image_url" placeholder="Link Gambar (https://...)" class="w-full border bg-slate-50 p-2 rounded" required>
                         <input type="text" name="download_url" placeholder="Link Download File" class="w-full border bg-slate-50 p-2 rounded">
@@ -399,7 +385,10 @@ def admin():
                         <img src="{{ item.image_url }}" class="w-16 h-16 object-contain bg-white rounded border">
                         <div>
                             <h3 class="font-bold text-slate-800">{{ item.name }}</h3>
-                            <p class="text-xs font-bold text-emerald-600">Rp {{ item.price }}</p>
+                            <div class="flex items-center gap-1">
+                                <p class="text-xs font-bold text-emerald-600">Rp {{ item.price }}</p>
+                                <p class="text-xs text-slate-400">{{ item.unit or '' }}</p>
+                            </div>
                             <p class="text-xs text-slate-400 mt-1">{{ item.prefix }}...</p>
                         </div>
                         <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
@@ -416,13 +405,12 @@ def admin():
     ''', products=products_data, contact=contact_data, pricing=pricing_data)
 
 # ==============================================================================
-# ⚙️ 6. ROUTE CRUD ADMIN (PRODUK & SETTING)
+# ⚙️ 6. ROUTE CRUD ADMIN
 # ==============================================================================
 @app.route('/admin/settings', methods=['POST'])
 def update_settings():
     if not session.get('is_admin'): return redirect('/admin')
     
-    # Update Kontak
     contact_data = {
         "company": request.form.get('company'), 
         "address": request.form.get('address'), 
@@ -431,7 +419,6 @@ def update_settings():
     }
     if db: db.collection('settings').document('contact').set(contact_data)
 
-    # Update Harga Multi-App
     nexapos_price = request.form.get('nexapos_price')
     moodly_price = request.form.get('moodly_price')
     if db:
@@ -445,7 +432,18 @@ def update_settings():
 @app.route('/admin/add', methods=['POST'])
 def add_product():
     if not session.get('is_admin'): return redirect('/admin')
-    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "download_url": request.form.get('download_url'), "created_at": firestore.SERVER_TIMESTAMP }
+    data = { 
+        "name": request.form.get('name'), 
+        "tagline": request.form.get('tagline'), 
+        "price": int(request.form.get('price')), # Tetap Angka
+        "unit": request.form.get('unit'), # 👇 Kolom Baru
+        "original_price": request.form.get('original_price'), 
+        "prefix": request.form.get('prefix'), 
+        "description": request.form.get('description'), 
+        "image_url": request.form.get('image_url'), 
+        "download_url": request.form.get('download_url'), 
+        "created_at": firestore.SERVER_TIMESTAMP 
+    }
     if db: db.collection('products').add(data)
     return redirect('/admin')
 
@@ -464,12 +462,46 @@ def edit_product_page(id):
         if doc.exists:
             product = doc.to_dict()
             product['id'] = doc.id
-    return render_template_string('''<!DOCTYPE html><html lang="id"><head><title>Edit</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-100 p-10 flex justify-center"><div class="bg-white p-8 rounded-xl shadow w-full max-w-md"><h2 class="font-bold text-xl mb-4">Edit Produk</h2><form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-3"><input type="text" name="name" value="{{ product.name }}" class="border p-2 w-full rounded"><input type="number" name="price" value="{{ product.price }}" class="border p-2 w-full rounded"><textarea name="description" class="border p-2 w-full rounded">{{ product.description }}</textarea><button class="bg-indigo-600 text-white w-full py-2 rounded font-bold">UPDATE</button><a href="/admin" class="block text-center mt-2 text-slate-500">Batal</a></form></div></body></html>''', product=product)
+    
+    return render_template_string('''
+    <!DOCTYPE html><html lang="id"><head><title>Edit</title><script src="https://cdn.tailwindcss.com"></script></head>
+    <body class="bg-slate-100 p-10 flex justify-center">
+        <div class="bg-white p-8 rounded-xl shadow w-full max-w-md">
+            <h2 class="font-bold text-xl mb-4">Edit Produk</h2>
+            <form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-3">
+                <label class="text-xs font-bold uppercase">Nama</label>
+                <input type="text" name="name" value="{{ product.name }}" class="border p-2 w-full rounded">
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-xs font-bold uppercase">Harga (Angka)</label>
+                        <input type="number" name="price" value="{{ product.price }}" class="border p-2 w-full rounded">
+                    </div>
+                    <div>
+                        <label class="text-xs font-bold uppercase">Unit (/bulan)</label>
+                        <input type="text" name="unit" value="{{ product.unit or '' }}" class="border p-2 w-full rounded">
+                    </div>
+                </div>
+
+                <label class="text-xs font-bold uppercase">Deskripsi</label>
+                <textarea name="description" class="border p-2 w-full rounded">{{ product.description }}</textarea>
+                
+                <button class="bg-indigo-600 text-white w-full py-2 rounded font-bold">UPDATE</button>
+                <a href="/admin" class="block text-center mt-2 text-slate-500">Batal</a>
+            </form>
+        </div>
+    </body></html>
+    ''', product=product)
 
 @app.route('/admin/update/<id>', methods=['POST'])
 def update_product_logic(id):
     if not session.get('is_admin'): return redirect('/admin')
-    data = { "name": request.form.get('name'), "price": int(request.form.get('price')), "description": request.form.get('description') }
+    data = { 
+        "name": request.form.get('name'), 
+        "price": int(request.form.get('price')), 
+        "unit": request.form.get('unit'), # 👇 Update Unit Juga
+        "description": request.form.get('description') 
+    }
     if db: db.collection('products').document(id).update(data)
     return redirect('/admin')
 
