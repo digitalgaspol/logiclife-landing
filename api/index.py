@@ -11,16 +11,14 @@ app = Flask(__name__)
 app.secret_key = 'rahasia_negara_bos_nexa'
 
 # ==============================================================================
-# ⚙️ KONFIGURASI (PASTIKAN KODE INI BENAR)
+# ⚙️ KONFIGURASI DUITKU & ADMIN
 # ==============================================================================
 MERCHANT_CODE = "DS28030"      
 API_KEY = "58191656b8692a368c766a9ca4124ee0"      
-
-# URL DUITKU (Mode Sandbox)
 SANDBOX_URL = "https://sandbox.duitku.com/webapi/api/merchant/v2/inquiry"
 PAYMENT_METHOD = "SP" # QRIS ShopeePay Sandbox
 
-ADMIN_PIN = "M3isy4851"
+ADMIN_PIN = "M3isy4851" # PIN Admin Bos
 
 # ==============================================================================
 # 🔥 INIT FIREBASE
@@ -40,7 +38,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ==============================================================================
-# 🌐 HALAMAN PUBLIK (HOME)
+# 🌐 1. HALAMAN PUBLIK (LANDING PAGE)
 # ==============================================================================
 @app.route('/')
 def home():
@@ -53,12 +51,14 @@ def home():
     }
 
     if db:
+        # Load Produk
         docs = db.collection('products').stream()
         for doc in docs:
             prod = doc.to_dict()
             prod['id'] = doc.id
             products_data.append(prod)
         
+        # Load Kontak
         settings_doc = db.collection('settings').document('contact').get()
         if settings_doc.exists:
             db_contact = settings_doc.to_dict()
@@ -75,173 +75,128 @@ def home():
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
         <style>
             body { font-family: 'Outfit', sans-serif; }
-            @keyframes blob {
-                0% { transform: translate(0px, 0px) scale(1); }
-                33% { transform: translate(30px, -50px) scale(1.1); }
-                66% { transform: translate(-20px, 20px) scale(0.9); }
-                100% { transform: translate(0px, 0px) scale(1); }
-            }
-            .animate-blob { animation: blob 7s infinite; }
-            .animation-delay-2000 { animation-delay: 2s; }
-            .animation-delay-4000 { animation-delay: 4s; }
             .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
         </style>
     </head>
     <body class="bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 text-slate-800 min-h-screen relative">
-
-        <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div class="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-            <div class="absolute top-0 right-1/4 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
-            <div class="absolute -bottom-8 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
-        </div>
-
         <nav class="glass sticky top-0 z-50">
             <div class="container mx-auto px-6 h-16 flex justify-between items-center">
-                <div class="flex items-center gap-2 group cursor-pointer">
-                    <div class="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition duration-300">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <div class="flex flex-col">
-                        <span class="text-xl font-extrabold text-slate-900 tracking-tight leading-none">LogicLife<span class="text-indigo-600">.</span></span>
-                        <span class="text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest leading-none">Digital Ecosystem</span>
-                    </div>
-                </div>
-
+                <span class="text-xl font-extrabold text-slate-900">LogicLife<span class="text-indigo-600">.</span></span>
                 <div class="flex gap-6">
-                    <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600 transition">Produk</a>
-                    <a href="#kontak" class="text-sm font-medium text-slate-500 hover:text-slate-900 transition">Kontak</a>
+                    <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Produk</a>
+                    <a href="/admin" class="text-sm font-medium text-slate-500 hover:text-slate-900">Login Admin</a>
                 </div>
             </div>
         </nav>
 
-        <header class="pt-24 pb-20 px-6 text-center relative z-10">
-            <div class="inline-block mb-4 px-4 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold tracking-widest uppercase border border-indigo-200">
-                Future Technology
-            </div>
-            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-tight">
-                Solusi Digital <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">Tanpa Batas</span>
-            </h1>
-            <p class="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed mb-8">
-                Tingkatkan produktivitas bisnis dan kebahagiaan personal Anda dengan ekosistem aplikasi LogicLife.
-            </p>
-            <a href="#products" class="bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-xl hover:shadow-2xl hover:bg-slate-800 transition transform hover:-translate-y-1 inline-block">
-                Lihat Produk
-            </a>
+        <header class="pt-24 pb-20 px-6 text-center">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6">Solusi Digital <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Tanpa Batas</span></h1>
+            <p class="text-lg text-slate-600 mb-8">Ekosistem aplikasi untuk produktivitas bisnis dan personal Anda.</p>
+            <a href="#products" class="bg-slate-900 text-white px-8 py-3 rounded-full font-bold shadow-xl hover:bg-slate-800 transition">Lihat Produk</a>
         </header>
 
-        <section id="products" class="container mx-auto px-6 py-10 mb-20 relative z-10">
+        <section id="products" class="container mx-auto px-6 py-10 mb-20">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                 {% for item in products %}
-                <div class="glass bg-white/80 rounded-3xl shadow-xl overflow-hidden flex flex-col hover:-translate-y-2 transition duration-300 group">
+                <div class="glass bg-white/80 rounded-3xl shadow-xl overflow-hidden flex flex-col hover:-translate-y-2 transition duration-300">
                     <div class="h-64 w-full bg-white relative overflow-hidden p-4 flex items-center justify-center">
-                        <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-contain transition duration-500 group-hover:scale-105" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
-                        <div class="absolute top-4 right-4 bg-indigo-50/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold shadow-sm text-indigo-900 border border-indigo-100">
-                            {{ item.prefix }} Premium
-                        </div>
+                        <img src="{{ item.image_url }}" class="w-full h-full object-contain" onerror="this.src='https://placehold.co/600x400?text=No+Image'">
                     </div>
                     <div class="p-8 flex-grow flex flex-col bg-white/50">
-                        <h2 class="text-2xl font-extrabold mb-1 text-slate-900">{{ item.name }}</h2>
-                        <p class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
-                        
-                        <p class="text-slate-500 text-sm mb-6 whitespace-pre-line leading-relaxed">{{ item.description }}</p>
+                        <h2 class="text-2xl font-extrabold mb-1">{{ item.name }}</h2>
+                        <p class="text-indigo-600 text-sm font-bold mb-4">{{ item.tagline }}</p>
+                        <p class="text-slate-500 text-sm mb-6">{{ item.description }}</p>
                         
                         <div class="mt-auto pt-6 border-t border-slate-100">
                             <div class="flex justify-between items-center mb-4">
-                                <span class="text-3xl font-extrabold text-slate-900">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
+                                <span class="text-3xl font-extrabold">Rp {{ "{:,.0f}".format(item.price).replace(',', '.') }}</span>
                                 <span class="text-xs line-through text-slate-400 bg-slate-100 px-2 py-1 rounded">Rp {{ item.original_price }}</span>
                             </div>
-                            <div class="grid grid-cols-2 gap-2">
-                                {% if item.download_url %}
-                                <a href="{{ item.download_url }}" target="_blank" class="flex items-center justify-center bg-white border border-slate-300 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 transition shadow-sm gap-1">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                    <span class="text-sm">UNDUH</span>
-                                </a>
-                                {% else %}
-                                <button disabled class="bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed">BELUM RILIS</button>
-                                {% endif %}
-                                <form action="/checkout" method="POST" class="flex-grow">
-                                    <input type="hidden" name="product_id" value="{{ item.id }}">
-                                    <button type="submit" class="w-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-bold py-3 rounded-xl hover:from-indigo-600 hover:to-purple-600 transition-all flex justify-center items-center gap-1 shadow-lg">
-                                        <span class="text-sm">BELI LISENSI</span>
-                                    </button>
-                                </form>
-                            </div>
+                            <form action="/checkout" method="POST">
+                                <input type="hidden" name="product_id" value="{{ item.id }}">
+                                <button class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition shadow-lg">BELI LISENSI</button>
+                            </form>
                         </div>
                     </div>
                 </div>
                 {% else %}
-                <div class="col-span-3 text-center py-20 text-slate-400">Belum ada produk.</div>
+                <div class="col-span-3 text-center py-20 text-slate-400">Belum ada produk. Silakan tambah di Admin.</div>
                 {% endfor %}
             </div>
         </section>
-
-        <footer id="kontak" class="bg-slate-900 text-slate-300 py-16 text-center relative overflow-hidden z-20">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
-            <div class="container mx-auto px-6 relative z-30">
-                <div class="mb-8">
-                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-xl shadow-indigo-900/50">
-                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <p class="mb-2 font-bold text-white text-2xl tracking-tight">{{ contact.company }}</p>
-                    <p class="text-slate-400 max-w-md mx-auto">{{ contact.address }}</p>
-                </div>
-                <div class="flex flex-wrap justify-center gap-4 mb-10">
-                    <a href="https://wa.me/{{ contact.whatsapp }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">WhatsApp Support</a>
-                    <a href="mailto:{{ contact.email }}" target="_blank" class="bg-white/5 hover:bg-white/10 border border-white/10 px-6 py-3 rounded-full flex items-center gap-2 transition text-sm font-bold text-white relative z-40 cursor-pointer">{{ contact.email }}</a>
-                </div>
-                <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem. v4.0 (Full Fix)</p>
-            </div>
+        
+        <footer class="bg-slate-900 text-slate-300 py-10 text-center">
+            <p class="font-bold text-white text-xl mb-2">{{ contact.company }}</p>
+            <p class="mb-4">{{ contact.address }}</p>
+            <p class="text-xs text-slate-500">&copy; 2026 LogicLife Ecosystem.</p>
         </footer>
     </body>
     </html>
     ''', products=products_data, contact=contact_data)
 
 # ==============================================================================
-# 💰 API PUBLIC (Untuk Aplikasi Mengambil Harga)
+# 💰 2. API PRICING (MULTI-APP SUPPORT)
 # ==============================================================================
 @app.route('/api/get_pricing')
 def get_pricing():
-    price = 150000
+    app_id = request.args.get('app_id') # nexapos atau moodly
+    price = 150000 # Default fallback
+    
     if db:
         doc = db.collection('settings').document('pricing').get()
         if doc.exists:
-            price = doc.to_dict().get('pro_price', 150000)
+            data = doc.to_dict()
+            # 👇 PILIH HARGA SESUAI ID APLIKASI
+            if app_id == 'moodly':
+                price = data.get('moodly_price', 50000)
+            else:
+                price = data.get('nexapos_price', 150000) # Default NexaPOS
     
     return jsonify({
+        "app_id": app_id,
         "price": price,
         "formatted": "{:,.0f}".format(price).replace(',', '.')
     })
 
 # ==============================================================================
-# 🛒 PROSES PEMBAYARAN & CALLBACK
+# 🛒 3. PROSES BAYAR "PRO LIFETIME" (MULTI-APP)
 # ==============================================================================
 @app.route('/buy_pro')
 def buy_pro():
     uid = request.args.get('uid')
     email = request.args.get('email')
+    app_id = request.args.get('app_id') # 👇 Diterima dari Aplikasi
+    
     if not uid: return "Error: User ID tidak ditemukan."
 
-    product_price = 150000 
+    # A. TENTUKAN HARGA & NAMA PRODUK
+    product_price = 150000
+    product_name = "NexaPOS PRO Lifetime"
+
     if db:
         doc = db.collection('settings').document('pricing').get()
         if doc.exists:
-            product_price = int(doc.to_dict().get('pro_price', 150000))
+            data = doc.to_dict()
+            if app_id == 'moodly':
+                product_price = int(data.get('moodly_price', 50000))
+                product_name = "Moodly Premium"
+            else:
+                product_price = int(data.get('nexapos_price', 150000))
+                product_name = "NexaPOS PRO Lifetime"
 
-    order_id = f"PRO-{uid}-{random.randint(100,999)}"
+    # B. BUAT ORDER ID UNIK (Format: PRO-APPID-UID-ACAK)
+    order_id = f"PRO-{app_id}-{uid}-{random.randint(100,999)}"
     
+    # C. HITUNG SIGNATURE DUITKU
     signature_str = MERCHANT_CODE + order_id + str(product_price) + API_KEY
     signature = hashlib.md5(signature_str.encode('utf-8')).hexdigest()
 
+    # D. KIRIM KE DUITKU
     payload = {
         "merchantCode": MERCHANT_CODE,
         "paymentAmount": product_price,
         "merchantOrderId": order_id,
-        "productDetails": "NexaPOS PRO Lifetime",
+        "productDetails": product_name,
         "email": email,
         "paymentMethod": PAYMENT_METHOD,
         "callbackUrl": "https://logiclife.site/callback_pro",
@@ -261,24 +216,36 @@ def buy_pro():
 @app.route('/callback_pro', methods=['POST'])
 def callback_pro():
     data = request.form
-    merchantOrderId = data.get('merchantOrderId')
+    merchantOrderId = data.get('merchantOrderId') 
     resultCode = data.get('resultCode')
-    if resultCode == '00':
+
+    if resultCode == '00': # Pembayaran Sukses
+        # Format Order ID: PRO-nexapos-UIDUser-123
         parts = merchantOrderId.split('-')
-        if len(parts) >= 2:
-            uid = parts[1] 
+        if len(parts) >= 3:
+            app_id = parts[1] # nexapos atau moodly
+            uid = parts[2]
+            
             if db:
+                # Update Status Sesuai Aplikasi
+                field_to_update = 'is_pro' # Default NexaPOS
+                if app_id == 'moodly':
+                    field_to_update = 'is_pro_moodly'
+
                 db.collection('users').document(uid).set({
-                    'is_pro': True,
-                    'pro_since': firestore.SERVER_TIMESTAMP
+                    field_to_update: True,
+                    f'{field_to_update}_since': firestore.SERVER_TIMESTAMP
                 }, merge=True)
+                
     return "OK"
 
 @app.route('/success_pro')
 def success_pro():
-    return "<h1>Pembayaran Berhasil! Silakan kembali ke Aplikasi NexaPOS.</h1>"
+    return "<h1>Pembayaran Berhasil! Silakan kembali ke Aplikasi.</h1>"
 
-# 👇 CHECKOUT PRODUK BIASA (YANG SEMPAT HILANG)
+# ==============================================================================
+# 🛒 4. CHECKOUT PRODUK BIASA (EBOOK/COURSE)
+# ==============================================================================
 @app.route('/checkout', methods=['POST'])
 def checkout():
     product_id = request.form.get('product_id')
@@ -325,41 +292,42 @@ def finish():
     return "<h1>Transaksi Selesai! Terima kasih.</h1>"
 
 # ==============================================================================
-# 🔐 ADMIN PANEL (YANG KEMARIN RUSAK)
+# 🔐 5. ADMIN PANEL (LENGKAP: CRUD + SETTING 2 HARGA)
 # ==============================================================================
-
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    # 1. LOGIC LOGIN (PIN)
+    # A. LOGIC LOGIN
     if request.method == 'POST':
-        pin = request.form.get('pin')
-        if pin == ADMIN_PIN:
+        if request.form.get('pin') == ADMIN_PIN:
             session['is_admin'] = True
             return redirect('/admin')
         else: return "PIN SALAH!"
 
     if not session.get('is_admin'):
-        return render_template_string('<form method="POST" style="text-align:center;padding:50px;"><input type="password" name="pin" placeholder="PIN Rahasia"><button>Masuk</button></form>')
+        return render_template_string('<form method="POST" style="text-align:center;padding:50px;font-family:sans-serif;"><h2>Admin Login</h2><input type="password" name="pin" placeholder="PIN Rahasia" style="padding:10px;"><br><br><button style="padding:10px 20px;">Masuk</button></form>')
 
-    # 2. LOAD DATA
+    # B. LOAD DATA
     products_data = []
     contact_data = {"company": "", "address": "", "whatsapp": "", "email": ""}
-    pricing_data = {"pro_price": 150000}
+    pricing_data = {"nexapos_price": 150000, "moodly_price": 50000} # Default
 
     if db:
+        # Load Produk
         docs = db.collection('products').stream()
         for doc in docs:
             prod = doc.to_dict()
             prod['id'] = doc.id
             products_data.append(prod)
         
+        # Load Kontak
         settings_doc = db.collection('settings').document('contact').get()
         if settings_doc.exists: contact_data = settings_doc.to_dict()
 
+        # Load Harga (Multi-App)
         price_doc = db.collection('settings').document('pricing').get()
         if price_doc.exists: pricing_data = price_doc.to_dict()
 
-    # 3. TEMPLATE ADMIN LENGKAP (Form Produk + Form Setting)
+    # C. RENDER ADMIN DASHBOARD
     return render_template_string('''
     <!DOCTYPE html>
     <html lang="id">
@@ -367,80 +335,76 @@ def admin():
     <body class="bg-slate-100 p-10 font-sans">
         <div class="max-w-6xl mx-auto">
             <div class="flex justify-between items-center mb-8 bg-white p-4 rounded-xl shadow-sm">
-                <div class="flex items-center gap-2">
-                    <span class="text-2xl">⚙️</span>
-                    <h1 class="text-2xl font-bold text-slate-800">Admin Dashboard</h1>
-                </div>
+                <h1 class="text-2xl font-bold text-slate-800">⚙️ Admin Dashboard</h1>
                 <div class="gap-2 flex">
-                    <a href="/" class="bg-slate-800 text-white px-5 py-2 rounded-lg hover:bg-slate-900 font-bold text-sm">🏠 Lihat Web</a>
+                    <a href="/" class="bg-slate-800 text-white px-5 py-2 rounded-lg hover:bg-slate-900 font-bold text-sm">🏠 Web Utama</a>
                     <a href="/logout" class="bg-red-500 text-white px-5 py-2 rounded-lg hover:bg-red-600 font-bold text-sm">🚪 Keluar</a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-indigo-600">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-indigo-900">📦 Tambah Produk Baru</h2>
-                    <form action="/admin/add" method="POST" class="grid gap-4">
-                        <input type="text" name="image_url" placeholder="Link Gambar (https://...)" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                        <input type="text" name="name" placeholder="Nama Produk" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                        <input type="text" name="tagline" placeholder="Tagline" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-emerald-500 h-fit">
+                    <h2 class="text-xl font-bold mb-6 text-emerald-900">💰 Setting Harga Aplikasi</h2>
+                    <form action="/admin/settings" method="POST" class="grid gap-4">
                         <div class="grid grid-cols-2 gap-4">
-                            <input type="number" name="price" placeholder="Harga" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                            <input type="text" name="original_price" placeholder="Harga Coret" class="w-full border bg-slate-50 p-3 rounded-lg" required>
+                            <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-200">
+                                <label class="block text-xs font-bold text-indigo-800 uppercase mb-1">NexaPOS PRO</label>
+                                <div class="flex items-center gap-1">
+                                    <span class="font-bold text-slate-500 text-sm">Rp</span>
+                                    <input type="number" name="nexapos_price" value="{{ pricing.nexapos_price }}" class="w-full border bg-white p-1 rounded font-bold" required>
+                                </div>
+                            </div>
+                            <div class="bg-pink-50 p-3 rounded-lg border border-pink-200">
+                                <label class="block text-xs font-bold text-pink-800 uppercase mb-1">Moodly Premium</label>
+                                <div class="flex items-center gap-1">
+                                    <span class="font-bold text-slate-500 text-sm">Rp</span>
+                                    <input type="number" name="moodly_price" value="{{ pricing.moodly_price }}" class="w-full border bg-white p-1 rounded font-bold" required>
+                                </div>
+                            </div>
                         </div>
-                        <input type="text" name="prefix" placeholder="Prefix (MOOD-)" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                        <input type="text" name="download_url" placeholder="Link PlayStore / APK (Boleh Kosong)" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300">
-                        <textarea name="description" placeholder="Deskripsi (Tekan Enter untuk baris baru)" class="w-full border bg-slate-50 p-3 rounded-lg" rows="5" required></textarea>
-                        <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg mt-2">+ SIMPAN PRODUK</button>
+                        <hr class="border-slate-200 my-2">
+                        <h2 class="text-sm font-bold text-slate-500 uppercase">Kontak Perusahaan</h2>
+                        <input type="text" name="company" value="{{ contact.company }}" placeholder="Nama PT" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <input type="text" name="address" value="{{ contact.address }}" placeholder="Alamat" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <input type="number" name="whatsapp" value="{{ contact.whatsapp }}" placeholder="No WA (62...)" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <input type="email" name="email" value="{{ contact.email }}" placeholder="Email" class="w-full border bg-slate-50 p-2 rounded" required>
+                        
+                        <button class="bg-emerald-600 text-white w-full py-3 rounded-lg font-bold hover:bg-emerald-700 shadow-lg mt-2">💾 SIMPAN SEMUA</button>
                     </form>
                 </div>
 
-                <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-emerald-500 h-fit">
-                    <h2 class="text-xl font-bold mb-6 flex items-center gap-2 text-emerald-900">⚙️ Pengaturan Global</h2>
-                    <form action="/admin/settings" method="POST" class="grid gap-4">
-                        
-                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                            <label class="block text-xs font-bold text-yellow-800 uppercase mb-1">Harga Paket PRO (Lifetime)</label>
-                            <div class="flex items-center gap-2">
-                                <span class="font-bold text-slate-500">Rp</span>
-                                <input type="number" name="pro_price" value="{{ pricing.pro_price }}" class="w-full border bg-white p-2 rounded-lg font-bold text-slate-800" required>
-                            </div>
+                <div class="bg-white p-8 rounded-xl shadow-md border-t-4 border-indigo-600">
+                    <h2 class="text-xl font-bold mb-6 text-indigo-900">📦 Tambah Produk Digital</h2>
+                    <form action="/admin/add" method="POST" class="grid gap-3">
+                        <input type="text" name="name" placeholder="Nama Produk (Misal: Ebook Viral)" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <input type="text" name="tagline" placeholder="Tagline Pendek" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="number" name="price" placeholder="Harga Jual" class="w-full border bg-slate-50 p-2 rounded" required>
+                            <input type="text" name="original_price" placeholder="Harga Coret" class="w-full border bg-slate-50 p-2 rounded" required>
                         </div>
-
-                        <hr class="border-slate-200 my-2">
-
-                        <label class="text-xs font-bold text-slate-500 uppercase">Nama Perusahaan</label>
-                        <input type="text" name="company" value="{{ contact.company }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                        
-                        <label class="text-xs font-bold text-slate-500 uppercase">Alamat</label>
-                        <textarea name="address" class="w-full border bg-slate-50 p-3 rounded-lg" rows="3" required>{{ contact.address }}</textarea>
-                        
-                        <label class="text-xs font-bold text-slate-500 uppercase">WhatsApp Admin</label>
-                        <input type="number" name="whatsapp" value="{{ contact.whatsapp }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                        
-                        <label class="text-xs font-bold text-slate-500 uppercase">Email Support</label>
-                        <input type="email" name="email" value="{{ contact.email }}" class="w-full border bg-slate-50 p-3 rounded-lg" required>
-                        
-                        <button class="bg-emerald-600 text-white w-full py-3 rounded-lg font-bold hover:bg-emerald-700 shadow-lg mt-2">💾 SIMPAN PENGATURAN</button>
+                        <input type="text" name="prefix" placeholder="Prefix Order (Contoh: BOOK-)" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <input type="text" name="image_url" placeholder="Link Gambar (https://...)" class="w-full border bg-slate-50 p-2 rounded" required>
+                        <input type="text" name="download_url" placeholder="Link Download File" class="w-full border bg-slate-50 p-2 rounded">
+                        <textarea name="description" placeholder="Deskripsi Produk..." class="w-full border bg-slate-50 p-2 rounded" rows="3" required></textarea>
+                        <button class="bg-indigo-600 text-white w-full py-3 rounded-lg font-bold hover:bg-indigo-700 shadow-lg mt-2">+ UPLOAD PRODUK</button>
                     </form>
                 </div>
             </div>
 
-            <div class="mt-12">
-                <h2 class="text-xl font-bold mb-4 text-slate-700">📋 Daftar Produk Aktif</h2>
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-slate-200">
+                <h2 class="text-xl font-bold mb-6 text-slate-700">📋 Daftar Produk Aktif</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {% for item in products %}
-                    <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-col gap-3">
-                        <div class="flex gap-4 items-center">
-                            <img src="{{ item.image_url }}" class="w-16 h-16 object-contain rounded-lg bg-gray-100 p-1">
-                            <div class="flex-grow">
-                                <h3 class="font-bold text-slate-800">{{ item.name }}</h3>
-                                <p class="text-slate-500 text-xs font-bold">Rp {{ item.price }}</p>
-                            </div>
+                    <div class="border border-slate-200 p-4 rounded-lg flex gap-4 items-start relative group hover:bg-slate-50 transition">
+                        <img src="{{ item.image_url }}" class="w-16 h-16 object-contain bg-white rounded border">
+                        <div>
+                            <h3 class="font-bold text-slate-800">{{ item.name }}</h3>
+                            <p class="text-xs font-bold text-emerald-600">Rp {{ item.price }}</p>
+                            <p class="text-xs text-slate-400 mt-1">{{ item.prefix }}...</p>
                         </div>
-                        <div class="flex gap-2 mt-2">
-                            <a href="/admin/edit/{{ item.id }}" class="bg-yellow-100 text-yellow-700 py-2 px-4 rounded-lg hover:bg-yellow-200 font-bold text-xs flex-grow text-center">✏️ EDIT</a>
-                            <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Yakin hapus?')" class="bg-red-50 text-red-600 py-2 px-4 rounded-lg hover:bg-red-100 font-bold text-xs flex-grow text-center">🗑️ HAPUS</a>
+                        <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                            <a href="/admin/edit/{{ item.id }}" class="bg-yellow-100 text-yellow-700 p-2 rounded hover:bg-yellow-200 text-xs">✏️</a>
+                            <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Hapus?')" class="bg-red-100 text-red-700 p-2 rounded hover:bg-red-200 text-xs">🗑️</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -451,20 +415,9 @@ def admin():
     </html>
     ''', products=products_data, contact=contact_data, pricing=pricing_data)
 
-# 👇 ROUTE CRUD (YANG HILANG)
-@app.route('/admin/add', methods=['POST'])
-def add_product():
-    if not session.get('is_admin'): return redirect('/admin')
-    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "download_url": request.form.get('download_url'), "created_at": firestore.SERVER_TIMESTAMP }
-    if db: db.collection('products').add(data)
-    return redirect('/admin')
-
-@app.route('/admin/delete/<id>')
-def delete_product(id):
-    if not session.get('is_admin'): return redirect('/admin')
-    if db: db.collection('products').document(id).delete()
-    return redirect('/admin')
-
+# ==============================================================================
+# ⚙️ 6. ROUTE CRUD ADMIN (PRODUK & SETTING)
+# ==============================================================================
 @app.route('/admin/settings', methods=['POST'])
 def update_settings():
     if not session.get('is_admin'): return redirect('/admin')
@@ -478,15 +431,29 @@ def update_settings():
     }
     if db: db.collection('settings').document('contact').set(contact_data)
 
-    # Update Harga PRO
-    pro_price = request.form.get('pro_price')
-    if pro_price and db:
-        db.collection('settings').document('pricing').set({'pro_price': int(pro_price)})
+    # Update Harga Multi-App
+    nexapos_price = request.form.get('nexapos_price')
+    moodly_price = request.form.get('moodly_price')
+    if db:
+        db.collection('settings').document('pricing').set({
+            'nexapos_price': int(nexapos_price),
+            'moodly_price': int(moodly_price)
+        }, merge=True)
 
     return redirect('/admin')
 
-@app.route('/logout')
-def logout(): session.pop('is_admin', None); return redirect('/')
+@app.route('/admin/add', methods=['POST'])
+def add_product():
+    if not session.get('is_admin'): return redirect('/admin')
+    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "download_url": request.form.get('download_url'), "created_at": firestore.SERVER_TIMESTAMP }
+    if db: db.collection('products').add(data)
+    return redirect('/admin')
+
+@app.route('/admin/delete/<id>')
+def delete_product(id):
+    if not session.get('is_admin'): return redirect('/admin')
+    if db: db.collection('products').document(id).delete()
+    return redirect('/admin')
 
 @app.route('/admin/edit/<id>')
 def edit_product_page(id):
@@ -497,35 +464,14 @@ def edit_product_page(id):
         if doc.exists:
             product = doc.to_dict()
             product['id'] = doc.id
-    
-    return render_template_string('''
-    <!DOCTYPE html>
-    <html lang="id">
-    <head><title>Edit Produk</title><script src="https://cdn.tailwindcss.com"></script></head>
-    <body class="bg-slate-100 p-10 font-sans flex justify-center items-center min-h-screen">
-        <div class="bg-white p-8 rounded-xl shadow-lg border-t-4 border-yellow-500 w-full max-w-lg">
-            <h2 class="text-2xl font-bold mb-6 text-yellow-800">✏️ Edit Produk</h2>
-            <form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-4">
-                <div><label class="text-xs font-bold text-slate-500 uppercase">Link Gambar</label><input type="text" name="image_url" value="{{ product.image_url }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase">Nama Produk</label><input type="text" name="name" value="{{ product.name }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase">Tagline</label><input type="text" name="tagline" value="{{ product.tagline }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="text-xs font-bold text-slate-500 uppercase">Harga</label><input type="number" name="price" value="{{ product.price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
-                    <div><label class="text-xs font-bold text-slate-500 uppercase">Harga Coret</label><input type="text" name="original_price" value="{{ product.original_price }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
-                </div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase">Prefix</label><input type="text" name="prefix" value="{{ product.prefix }}" class="w-full border bg-slate-50 p-3 rounded-lg" required></div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase">Link Download</label><input type="text" name="download_url" value="{{ product.download_url }}" class="w-full border bg-slate-50 p-3 rounded-lg border-blue-300"></div>
-                <div><label class="text-xs font-bold text-slate-500 uppercase">Deskripsi</label><textarea name="description" class="w-full border bg-slate-50 p-3 rounded-lg" rows="5" required>{{ product.description }}</textarea></div>
-                <div class="flex gap-2 mt-4"><a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a><button class="bg-yellow-500 text-white w-2/3 py-3 rounded-lg font-bold hover:bg-yellow-600 shadow-lg">UPDATE DATA</button></div>
-            </form>
-        </div>
-    </body>
-    </html>
-    ''', product=product)
+    return render_template_string('''<!DOCTYPE html><html lang="id"><head><title>Edit</title><script src="https://cdn.tailwindcss.com"></script></head><body class="bg-slate-100 p-10 flex justify-center"><div class="bg-white p-8 rounded-xl shadow w-full max-w-md"><h2 class="font-bold text-xl mb-4">Edit Produk</h2><form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-3"><input type="text" name="name" value="{{ product.name }}" class="border p-2 w-full rounded"><input type="number" name="price" value="{{ product.price }}" class="border p-2 w-full rounded"><textarea name="description" class="border p-2 w-full rounded">{{ product.description }}</textarea><button class="bg-indigo-600 text-white w-full py-2 rounded font-bold">UPDATE</button><a href="/admin" class="block text-center mt-2 text-slate-500">Batal</a></form></div></body></html>''', product=product)
 
 @app.route('/admin/update/<id>', methods=['POST'])
 def update_product_logic(id):
     if not session.get('is_admin'): return redirect('/admin')
-    data = { "name": request.form.get('name'), "tagline": request.form.get('tagline'), "price": int(request.form.get('price')), "original_price": request.form.get('original_price'), "prefix": request.form.get('prefix'), "description": request.form.get('description'), "image_url": request.form.get('image_url'), "download_url": request.form.get('download_url') }
+    data = { "name": request.form.get('name'), "price": int(request.form.get('price')), "description": request.form.get('description') }
     if db: db.collection('products').document(id).update(data)
     return redirect('/admin')
+
+@app.route('/logout')
+def logout(): session.pop('is_admin', None); return redirect('/')
