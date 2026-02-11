@@ -38,7 +38,7 @@ except Exception as e:
     print(f"Firebase Error: {e}")
 
 # ==============================================================================
-# 🌐 1. HALAMAN PUBLIK (LANDING PAGE)
+# 🌐 1. HALAMAN PUBLIK (HOME DENGAN TOMBOL KEREN)
 # ==============================================================================
 @app.route('/')
 def home():
@@ -73,7 +73,6 @@ def home():
         <style>
             body { font-family: 'Outfit', sans-serif; }
             .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5); }
-            /* Styling untuk hasil text editor */
             .prose ul { list-style-type: disc; padding-left: 20px; margin-bottom: 10px; }
             .prose ol { list-style-type: decimal; padding-left: 20px; margin-bottom: 10px; }
             .prose p { margin-bottom: 10px; }
@@ -86,7 +85,7 @@ def home():
                 <span class="text-xl font-extrabold text-slate-900">LogicLife<span class="text-indigo-600">.</span></span>
                 <div class="flex gap-6">
                     <a href="#products" class="text-sm font-bold text-slate-600 hover:text-indigo-600">Produk</a>
-                    </div>
+                </div>
             </div>
         </nav>
 
@@ -119,14 +118,33 @@ def home():
                                     <span class="text-sm font-bold text-slate-500">{{ item.unit or '' }}</span>
                                 </div>
                             </div>
+
                             <form action="/checkout" method="POST">
                                 <input type="hidden" name="product_id" value="{{ item.id }}">
+                                
                                 <div class="mb-3">
-                                    <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Email Akun Anda</label>
-                                    <input type="email" name="customer_email" placeholder="contoh@gmail.com" class="w-full border border-slate-300 bg-slate-50 px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-indigo-500" required>
-                                    <p class="text-[10px] text-slate-400 mt-1">*Pastikan email ini aktif / digunakan di aplikasi</p>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase block mb-1">Email Akun Anda (Untuk Aktivasi)</label>
+                                    <input type="email" name="customer_email" placeholder="contoh@gmail.com" class="w-full border border-slate-300 bg-slate-50 px-3 py-2 rounded-lg text-sm focus:outline-none focus:border-indigo-500 transition" required>
                                 </div>
-                                <button class="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition shadow-lg">BELI LISENSI</button>
+
+                                <div class="grid grid-cols-2 gap-2">
+                                    {% if item.download_url %}
+                                    <a href="{{ item.download_url }}" target="_blank" class="flex items-center justify-center bg-white border border-slate-300 text-slate-700 font-bold py-3 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition shadow-sm gap-1 group">
+                                        <svg class="w-5 h-5 text-slate-500 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                        <span class="text-sm">UNDUH</span>
+                                    </a>
+                                    {% else %}
+                                    <div class="flex items-center justify-center bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-sm cursor-not-allowed border border-slate-200">
+                                        Coming Soon
+                                    </div>
+                                    {% endif %}
+
+                                    <button type="submit" class="bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-indigo-600 transition shadow-lg flex justify-center items-center gap-1 group">
+                                        <svg class="w-5 h-5 text-yellow-400 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                        <span class="text-sm">BELI PRO</span>
+                                    </button>
+                                </div>
+
                             </form>
                         </div>
                     </div>
@@ -317,7 +335,7 @@ def checkout():
         return f"Error Duitku: {data}"
     except Exception as e: return str(e)
 
-# CALLBACK WEB (LOGIKA EMAIL MATCHING)
+# CALLBACK WEB
 @app.route('/callback', methods=['POST'])
 def callback():
     data = request.form
@@ -334,7 +352,6 @@ def callback():
                 email = txn_data.get('email')
                 product_name = txn_data.get('product_name', '').lower()
                 
-                # 1. Cari User di Database
                 users_ref = db.collection('users')
                 query = users_ref.where('email', '==', email).limit(1).stream()
                 
@@ -343,7 +360,6 @@ def callback():
                     user_found = True
                     uid = user_doc.id
                     
-                    # 2. Upgrade User (Kalo ketemu)
                     update_data = {}
                     if 'moodly' in product_name:
                         update_data = {'is_pro_moodly': True}
@@ -353,7 +369,6 @@ def callback():
                     if update_data:
                         db.collection('users').document(uid).set(update_data, merge=True)
                 
-                # 3. Kalo User Belum Daftar (Simpan Tiket Pending)
                 if not user_found:
                     db.collection('prepaid_upgrades').document(email).set({
                         'product_name': product_name,
