@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <title>Edit Produk</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+</head>
+<body class="bg-slate-100 p-10 flex justify-center min-h-screen items-center">
+    <div class="bg-white p-8 rounded-xl shadow w-full max-w-2xl">
+        <h2 class="font-bold text-xl mb-4 text-slate-700">✏️ Edit Produk Lengkap</h2>
+        <form action="/admin/update/{{ product.id }}" method="POST" class="grid gap-3">
+            
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Nama Produk</label>
+                    <input type="text" name="name" value="{{ product.name }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Tagline</label>
+                    <input type="text" name="tagline" value="{{ product.tagline }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Harga (Angka)</label>
+                    <input type="number" name="price" value="{{ product.price }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Unit (/bulan)</label>
+                    <input type="text" name="unit" value="{{ product.unit or '' }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Harga Coret</label>
+                    <input type="text" name="original_price" value="{{ product.original_price }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Prefix Order</label>
+                    <input type="text" name="prefix" value="{{ product.prefix }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+                <div>
+                    <label class="text-xs font-bold uppercase text-slate-500">Link Gambar</label>
+                    <input type="text" name="image_url" value="{{ product.image_url }}" class="border p-2 w-full rounded bg-slate-50">
+                </div>
+            </div>
+
+            <div>
+                <label class="text-xs font-bold uppercase text-slate-500">Link Download</label>
+                <input type="text" name="download_url" value="{{ product.download_url }}" class="border p-2 w-full rounded bg-slate-50">
+            </div>
+
+            <label class="text-xs font-bold uppercase text-slate-500 mt-2">Deskripsi Produk</label>
+            <textarea name="description" class="border p-2 w-full rounded">{{ product.description }}</textarea>
+            
+            <div class="flex gap-2 mt-4">
+                <a href="/admin" class="bg-gray-200 text-gray-700 py-3 rounded-lg font-bold w-1/3 text-center">BATAL</a>
+                <button class="bg-indigo-600 text-white w-2/3 py-3 rounded-lg font-bold shadow hover:bg-indigo-700">UPDATE DATA</button>
+            </div>
+        </form>
+    </div>
+    <script>CKEDITOR.replace('description');</script>
+</body>
+</html>
