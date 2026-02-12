@@ -248,5 +248,56 @@ def debug_order(order_id):
         return f"<h1>BERHASIL ✅</h1> Order {order_id} diproses."
     return f"<h1>GAGAL ❌</h1> Cek logs."
 
+# 👇 ROUTE HALAMAN EDIT (Pasang ini biar Error 404 hilang) 👇
+
+@app.route('/admin/edit/<id>')
+def edit_product_page(id):
+    # Cek Login Admin
+    # if not session.get('is_admin'): return redirect('/admin') # (Opsional: Nyalakan kalau mau aman)
+    
+    product = {}
+    if db:
+        try:
+            doc = db.collection('products').document(id).get()
+            if doc.exists: 
+                product = doc.to_dict()
+                product['id'] = doc.id # Masukkan ID biar form tau siapa yang diedit
+            else:
+                return "❌ Produk tidak ditemukan di Database."
+        except Exception as e:
+            return f"❌ Error Database: {e}"
+
+    # Pastikan file 'edit_product.html' sudah ada di folder templates!
+    return render_template('edit_product.html', product=product)
+
+
+# 👇 ROUTE PROSES SIMPAN EDIT (Biar tombol Simpan berfungsi) 👇
+
+@app.route('/admin/update/<id>', methods=['POST'])
+def update_product_logic(id):
+    # Cek Login Admin
+    # if not session.get('is_admin'): return redirect('/admin') 
+    
+    if db:
+        try:
+            # Update data ke Firebase
+            db.collection('products').document(id).update({
+                "name": request.form.get('name'), 
+                "tagline": request.form.get('tagline'),
+                "price": int(request.form.get('price')), 
+                "unit": request.form.get('unit'),
+                "original_price": request.form.get('original_price'), 
+                "prefix": request.form.get('prefix'),
+                "image_url": request.form.get('image_url'), 
+                "download_url": request.form.get('download_url'),
+                "description": request.form.get('description')
+            })
+            print(f"✅ Sukses Update Produk: {id}")
+        except Exception as e:
+            print(f"❌ Gagal Update: {e}")
+            return f"Gagal Update: {e}"
+
+    return redirect('/admin') # Balik ke dashboard
+
 if __name__ == '__main__':
     app.run(debug=True)
