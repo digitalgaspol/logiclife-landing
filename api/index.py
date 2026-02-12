@@ -413,9 +413,7 @@ def admin_activate_user():
     app_type = request.form.get('app_type')
     pin = request.form.get('pin')
     
-    if pin != "M3isy4851": # Ganti PIN sesuai keinginan Bos
-        flash("❌ PIN Salah!", "error")
-        return redirect('/admin')
+    
     
     if not uid:
         flash("❌ UID Kosong!", "error")
