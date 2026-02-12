@@ -376,10 +376,52 @@ def logout(): session.pop('is_admin', None); return redirect('/')
 
 # 👇 TEMPEL INI DI PALING BAWAH FILE 👇
 
-@app.route('/test_manual/<order_id>')
-def test_manual(order_id):
-    # Panggil fungsi sakti fulfill_order
-    if fulfill_order(order_id):
-        return f"<h1>BERHASIL! ✅</h1> <p>Order {order_id} sudah diproses. Cek Firebase sekarang.</p>"
-    else:
-        return f"<h1>GAGAL! ❌</h1> <p>Order {order_id} tidak valid atau error sistem.</p>"
+@app.route('/debug_order/<order_id>')
+def debug_order(order_id):
+    logs = []
+    try:
+        logs.append(f"🔍 1. Menerima Order ID: {order_id}")
+        
+        # Cek Koneksi Database
+        if db is None:
+            return "<h1>❌ ERROR FATAL: Database Tidak Terhubung!</h1><p>Variabel 'db' is None. Cek kredensial Firebase.</p>"
+        logs.append("✅ 2. Database Terhubung")
+        
+        # Cek Pecahan ID
+        parts = order_id.split('-')
+        logs.append(f"ℹ️ 3. Pecahan ID: {parts} (Jumlah: {len(parts)})")
+        
+        app_id = 'nexapos'
+        uid = None
+        
+        if len(parts) >= 4:
+            app_id = parts[1]
+            uid = parts[2]
+        elif len(parts) == 3:
+            uid = parts[1]
+        else:
+            return "<br>".join(logs) + "<br><h1>❌ GAGAL: Format ID Salah (Kurang panjang)</h1>"
+            
+        logs.append(f"🎯 4. Target: App={app_id}, UID={uid}")
+        
+        # Cek Apakah User Ada di Firebase?
+        user_ref = db.collection('users').document(uid)
+        doc = user_ref.get()
+        
+        if not doc.exists:
+             return "<br>".join(logs) + f"<br><h1>❌ GAGAL: User UID {uid} Tidak Ditemukan di Database!</h1>"
+        logs.append("✅ 5. User Ditemukan di Database")
+        
+        # Eksekusi Update
+        logs.append("⚙️ 6. Mencoba Update Status...")
+        if app_id == 'moodly':
+            user_ref.update({'is_pro_moodly': True, 'is_premium': True})
+        else:
+            user_ref.update({'is_pro': True, 'is_premium': True})
+            
+        logs.append("🎉 7. UPDATE BERHASIL!")
+        
+        return "<br>".join(logs) + "<br><h1>✅ SUKSES! Status User Sudah Diupdate.</h1>"
+
+    except Exception as e:
+        return "<br>".join(logs) + f"<br><h1>❌ EXCEPTION ERROR: {str(e)}</h1>"
