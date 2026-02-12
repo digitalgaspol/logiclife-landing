@@ -126,17 +126,41 @@ def home():
     return render_template('index.html')
 
 # --- ROUTE ADMIN DASHBOARD (TAMPILAN) ---
+# 👇 UPDATE BAGIAN INI BIAR PRODUKNYA MUNCUL LAGI 👇
+
 @app.route('/admin')
 def admin_dashboard():
-    # Di sini bisa ditambah logika cek login session kalau mau aman
-    # Untuk sekarang kita render langsung biar Bos bisa masuk
-    
-    # Data Dummy untuk tampilan (Supaya gak error variablenya)
-    pricing = {'nexapos_price': 150000, 'moodly_price': 50000}
-    contact = {'company': 'LogicLife', 'email': 'admin@logiclife.site'}
-    products = [] # List kosong dulu
-    
-    return render_template('admin.html', pricing=pricing, contact=contact, products=products)
+    # 1. Siapkan Tempat Data
+    products_data = []
+    pricing_data = {"nexapos_price": 150000, "moodly_price": 50000} # Default
+    contact_data = {"company": "LogicLife", "email": "admin@logiclife.site"} # Default
+
+    # 2. Ambil Data dari Database (NexaPOS)
+    if db:
+        try:
+            # Ambil List Produk
+            docs = db.collection('products').stream()
+            for doc in docs:
+                prod = doc.to_dict()
+                prod['id'] = doc.id
+                products_data.append(prod)
+            
+            # Ambil Setting Harga
+            price_doc = db.collection('settings').document('pricing').get()
+            if price_doc.exists: pricing_data = price_doc.to_dict()
+
+            # Ambil Kontak
+            contact_doc = db.collection('settings').document('contact').get()
+            if contact_doc.exists: contact_data = contact_doc.to_dict()
+            
+        except Exception as e:
+            print(f"⚠️ Gagal ambil data admin: {e}")
+
+    # 3. Kirim ke HTML
+    return render_template('admin.html', 
+                         products=products_data, 
+                         pricing=pricing_data, 
+                         contact=contact_data)
 
 
 # --- ROUTE ADMIN ACTION (AKTIVASI MANUAL) ---
