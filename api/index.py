@@ -371,3 +371,15 @@ def edit_product_page(id):
 
 @app.route('/logout')
 def logout(): session.pop('is_admin', None); return redirect('/')
+
+# ... (Baris terakhir kodingan lama Bos) ...
+
+# 👇 TEMPEL INI DI PALING BAWAH FILE 👇
+
+@app.route('/test_manual/<order_id>')
+def test_manual(order_id):
+    # Panggil fungsi sakti fulfill_order
+    if fulfill_order(order_id):
+        return f"<h1>BERHASIL! ✅</h1> <p>Order {order_id} sudah diproses. Cek Firebase sekarang.</p>"
+    else:
+        return f"<h1>GAGAL! ❌</h1> <p>Order {order_id} tidak valid atau error sistem.</p>"
