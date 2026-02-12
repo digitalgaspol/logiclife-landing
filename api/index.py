@@ -212,31 +212,65 @@ def get_pricing():
 
 @app.route('/buy_pro')
 def buy_pro():
-    uid, email, app_id = request.args.get('uid'), request.args.get('email'), request.args.get('app_id')
-    if not uid: return "Error: User ID tidak ditemukan."
-    product_price, product_name = 150000, "NexaPOS PRO Lifetime"
+    # 1. Tangkap Data dari Aplikasi
+    uid = request.args.get('uid')
+    email = request.args.get('email')
+    app_id = request.args.get('app_id')
+    
+    if not uid or not email: return "Error: Data User tidak lengkap."
+    
+    # 2. Tentukan Nama Produk buat Tampilan
+    product_name = "NexaPOS PRO"
+    if app_id == 'moodly': product_name = "Moodly Premium"
+
+    # 3. Tampilkan Halaman Pilih Pembayaran (Bukan langsung redirect)
+    return render_template('payment.html', uid=uid, email=email, app_id=app_id, product_name=product_name)
+
+@app.route('/process_app_payment')
+def process_app_payment():
+    # 1. Tangkap Data dari Pilihan User
+    gateway = request.args.get('gateway')
+    uid = request.args.get('uid')
+    email = request.args.get('email')
+    app_id = request.args.get('app_id')
+
+    # 2. Cek Harga & Nama Produk
+    product_price = 150000
+    product_name = "NexaPOS PRO Lifetime"
+    
     if db:
         doc = db.collection('settings').document('pricing').get()
         if doc.exists:
             data = doc.to_dict()
-            if app_id == 'moodly': product_price, product_name = int(data.get('moodly_price', 50000)), "Moodly Premium"
-            else: product_price = int(data.get('nexapos_price', 150000))
+            if app_id == 'moodly':
+                product_price = int(data.get('moodly_price', 50000))
+                product_name = "Moodly Premium"
+            else:
+                product_price = int(data.get('nexapos_price', 150000))
 
+    # 3. Buat Order ID Unik
+    # Format: PRO-APPID-UID-RANDOM
     order_id = f"PRO-{app_id}-{uid}-{random.randint(100,999)}"
-    signature = hashlib.md5((DUITKU_MERCHANT_CODE + order_id + str(product_price) + DUITKU_API_KEY).encode('utf-8')).hexdigest()
-    
-    payload = {
-        "merchantCode": DUITKU_MERCHANT_CODE, "paymentAmount": product_price, "merchantOrderId": order_id,
-        "productDetails": product_name, "email": email, "paymentMethod": "SP",
-        "callbackUrl": "https://logiclife.site/callback", "returnUrl": "https://logiclife.site/success_pro",
-        "signature": signature, "expiryPeriod": 60
-    }
-    try:
-        r = requests.post(DUITKU_URL, json=payload, headers={'Content-Type': 'application/json'})
-        data = r.json()
-        if 'paymentUrl' in data: return redirect(data['paymentUrl'])
-        return f"Error: {data}"
-    except Exception as e: return str(e)
+
+    # 4. Simpan Transaksi Pending (PENTING: Biar Callback Nemu)
+    if db:
+        db.collection('pending_transactions').document(order_id).set({
+            'email': email,
+            'product_id': app_id, # moodly atau nexapos
+            'product_name': product_name,
+            'gateway': gateway,
+            'amount': product_price,
+            'created_at': firestore.SERVER_TIMESTAMP,
+            'status': 'pending',
+            'origin': 'app', # Penanda transaksi dari aplikasi
+            'user_uid': uid
+        })
+
+    # 5. Arahkan ke Gateway Pilihan
+    if gateway == 'midtrans':
+        return process_midtrans(order_id, product_price, product_name, email)
+    else:
+        return process_duitku(order_id, product_price, product_name, email)
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
