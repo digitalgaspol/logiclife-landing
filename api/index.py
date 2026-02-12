@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, url_for, jsonify
+from firebase_admin import credentials, firestore
+from flask_cors import CORS
 import hashlib
 import requests
 import random
@@ -6,7 +8,8 @@ import os
 import json
 import base64
 import firebase_admin
-from firebase_admin import credentials, firestore
+import datetime
+
 
 app = Flask(__name__)
 app.secret_key = 'rahasia_negara_bos_nexa'
@@ -30,20 +33,64 @@ ADMIN_PIN = "M3isy4851"
 # ==============================================================================
 # 🔥 INIT FIREBASE
 # ==============================================================================
+# --- 1. INISIALISASI DATABASE NEXAPOS (UTAMA) ---
+# Baca dari Brangkas Vercel: FIREBASE_CREDENTIALS
 db = None
 try:
-    if not firebase_admin._apps:
-        cred_json = os.environ.get('FIREBASE_CREDENTIALS')
-        if cred_json:
-            cred_dict = json.loads(cred_json)
-            cred = credentials.Certificate(cred_dict)
-            firebase_admin.initialize_app(cred)
-            db = firestore.client()
+    # Cek apakah jalan di Local (pakai file) atau Vercel (pakai Env)
+    if os.environ.get('FIREBASE_CREDENTIALS'):
+        cred_dict = json.loads(os.environ.get('FIREBASE_CREDENTIALS'))
+        cred = credentials.Certificate(cred_dict)
     else:
-        db = firestore.client()
-except Exception as e:
-    print(f"Firebase Error: {e}")
+        # Fallback buat di Laptop (kalau ada filenya)
+        cred = credentials.Certificate("api/serviceAccountKey.json")
 
+    try:
+        firebase_admin.get_app()
+    except ValueError:
+        firebase_admin.initialize_app(cred)
+    
+    db = firestore.client()
+    print("✅ Koneksi NexaPOS: OK")
+except Exception as e:
+    print(f"❌ Koneksi NexaPOS Gagal: {e}")
+
+# --- 2. INISIALISASI DATABASE MOODLY (KEDUA) ---
+# Baca dari Brangkas Vercel: MOODLY_CREDENTIALS
+db_moodly = None
+try:
+    if os.environ.get('MOODLY_CREDENTIALS'):
+        # Baca dari Brangkas Vercel
+        moodly_dict = json.loads(os.environ.get('MOODLY_CREDENTIALS'))
+        cred_moodly = credentials.Certificate(moodly_dict)
+        
+        try:
+            app_moodly = firebase_admin.get_app('moodly_app')
+        except ValueError:
+            app_moodly = firebase_admin.initialize_app(cred_moodly, name='moodly_app')
+            
+        db_moodly = firestore.client(app=app_moodly)
+        print("✅ Koneksi Moodly: OK (Via Env)")
+        
+    elif os.path.exists("api/moodly_key.json"):
+        # Fallback buat di Laptop (kalau Bos taruh file manual saat dev)
+        cred_moodly = credentials.Certificate("api/moodly_key.json")
+        try:
+            app_moodly = firebase_admin.get_app('moodly_app')
+        except ValueError:
+            app_moodly = firebase_admin.initialize_app(cred_moodly, name='moodly_app')
+            
+        db_moodly = firestore.client(app=app_moodly)
+        print("✅ Koneksi Moodly: OK (Via File)")
+        
+    else:
+        print("⚠️ Skip Moodly: Tidak ada ENV MOODLY_CREDENTIALS atau file moodly_key.json")
+
+except Exception as e:
+    print(f"⚠️ Koneksi Moodly Gagal: {e}")
+
+app = Flask(__name__)
+# ... Lanjut ke bawah kode Bos yang lain ...
 # ==============================================================================
 # 🌐 ROUTE UTAMA
 # ==============================================================================
@@ -376,52 +423,43 @@ def logout(): session.pop('is_admin', None); return redirect('/')
 
 # 👇 TEMPEL INI DI PALING BAWAH FILE 👇
 
-@app.route('/debug_order/<order_id>')
-def debug_order(order_id):
-    logs = []
+def fulfill_order(order_id):
     try:
-        logs.append(f"🔍 1. Menerima Order ID: {order_id}")
-        
-        # Cek Koneksi Database
-        if db is None:
-            return "<h1>❌ ERROR FATAL: Database Tidak Terhubung!</h1><p>Variabel 'db' is None. Cek kredensial Firebase.</p>"
-        logs.append("✅ 2. Database Terhubung")
-        
-        # Cek Pecahan ID
-        parts = order_id.split('-')
-        logs.append(f"ℹ️ 3. Pecahan ID: {parts} (Jumlah: {len(parts)})")
-        
-        app_id = 'nexapos'
-        uid = None
-        
-        if len(parts) >= 4:
-            app_id = parts[1]
-            uid = parts[2]
-        elif len(parts) == 3:
-            uid = parts[1]
-        else:
-            return "<br>".join(logs) + "<br><h1>❌ GAGAL: Format ID Salah (Kurang panjang)</h1>"
+        print(f"Processing Order: {order_id}")
+        if order_id.startswith('PRO-'):
+            parts = order_id.split('-')
             
-        logs.append(f"🎯 4. Target: App={app_id}, UID={uid}")
-        
-        # Cek Apakah User Ada di Firebase?
-        user_ref = db.collection('users').document(uid)
-        doc = user_ref.get()
-        
-        if not doc.exists:
-             return "<br>".join(logs) + f"<br><h1>❌ GAGAL: User UID {uid} Tidak Ditemukan di Database!</h1>"
-        logs.append("✅ 5. User Ditemukan di Database")
-        
-        # Eksekusi Update
-        logs.append("⚙️ 6. Mencoba Update Status...")
-        if app_id == 'moodly':
-            user_ref.update({'is_pro_moodly': True, 'is_premium': True})
-        else:
-            user_ref.update({'is_pro': True, 'is_premium': True})
+            # Deteksi Format: PRO-moodly-UID-123
+            if len(parts) >= 4:
+                app_id = parts[1]
+                uid = parts[2]
+                
+                if app_id == 'moodly':
+                    if db_moodly:
+                        db_moodly.collection('users').document(uid).update({
+                            'is_pro_moodly': True, 
+                            'is_premium': True,
+                            'updated_at': firestore.SERVER_TIMESTAMP
+                        })
+                        return True
+                    else:
+                        print("❌ DB Moodly belum connect")
+                        return False
+                
+                else:
+                    # NexaPOS
+                    if db:
+                        db.collection('users').document(uid).update({'is_pro': True})
+                        return True
             
-        logs.append("🎉 7. UPDATE BERHASIL!")
-        
-        return "<br>".join(logs) + "<br><h1>✅ SUKSES! Status User Sudah Diupdate.</h1>"
+            # Support Format Lama (NexaPOS)
+            elif len(parts) == 3:
+                uid = parts[1]
+                if db:
+                    db.collection('users').document(uid).update({'is_pro': True})
+                    return True
 
     except Exception as e:
-        return "<br>".join(logs) + f"<br><h1>❌ EXCEPTION ERROR: {str(e)}</h1>"
+        print(f"Error: {e}")
+        return False
+    return False
