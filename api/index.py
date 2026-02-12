@@ -121,9 +121,41 @@ def fulfill_order(order_id):
 # 3. ROUTE / HALAMAN WEBSITE
 # ==============================================================================
 
+# 👇 GANTI BAGIAN ROUTE HOME DENGAN INI 👇
+
 @app.route('/')
 def home():
-    return render_template('index.html')
+    # 1. Siapkan Data Default (Supaya kalau DB error, web tetap jalan)
+    products_data = []
+    contact_data = {
+        "company": "LogicLife Digital",
+        "whatsapp": "628123456789", 
+        "email": "admin@logiclife.site",
+        "address": "Indonesia"
+    }
+
+    # 2. Ambil Data Real dari Database (NexaPOS)
+    if db:
+        try:
+            # Ambil Produk
+            docs = db.collection('products').stream()
+            for doc in docs:
+                prod = doc.to_dict()
+                prod['id'] = doc.id
+                products_data.append(prod)
+            
+            # Ambil Kontak (WA, Email, dll)
+            settings_doc = db.collection('settings').document('contact').get()
+            if settings_doc.exists:
+                contact_data.update(settings_doc.to_dict())
+                
+        except Exception as e:
+            print(f"⚠️ Error di Home: {e}")
+
+    # 3. Render Template
+    # ⚠️ PENTING: Pastikan nama file di folder templates adalah 'home.html'
+    # Kalau nama filenya 'index.html', ganti jadi 'index.html' di bawah ini.
+    return render_template('home.html', products=products_data, contact=contact_data)
 
 # --- ROUTE ADMIN DASHBOARD (TAMPILAN) ---
 # 👇 UPDATE BAGIAN INI BIAR PRODUKNYA MUNCUL LAGI 👇
