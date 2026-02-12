@@ -198,30 +198,30 @@ def admin_dashboard():
 # --- ROUTE ADMIN ACTION (AKTIVASI MANUAL) ---
 @app.route('/admin/activate_user', methods=['POST'])
 def admin_activate_user():
+    # 1. Ambil Data
     uid = request.form.get('uid', '').strip()
     app_type = request.form.get('app_type')
+    pin = request.form.get('pin', '').strip() # Ambil PIN yang diketik
     
-    # Ambil PIN (Opsional, sudah saya matikan pengecekannya biar Bos lolos)
-    pin = request.form.get('pin', '').strip()
+    # 2. 🔒 CEK PIN ADMIN (SUDAH AKTIF) 🔒
+    # Ganti "123456" dengan PIN Rahasia Bos (Misal: "M3isy4851")
+    if pin != "M3isy4851":
+        flash("❌ PIN SALAH! Jangan coba-coba ya.", "error")
+        return redirect('/admin')
     
-    # 🔓 PIN CHECKER DIMATIKAN SEMENTARA 🔓
-    # if pin != "123456":
-    #    flash("❌ PIN SALAH!", "error")
-    #    return redirect('/admin')
-    
+    # 3. Validasi UID
     if not uid:
         flash("❌ UID Kosong! Copy dari WA dulu bos.", "error")
         return redirect('/admin')
 
-    # Buat Order ID Palsu untuk memancing fungsi fulfill_order
+    # 4. Buat Order ID Palsu & Eksekusi
     fake_order_id = f"PRO-{app_type}-{uid}-MANUAL"
     
-    # Eksekusi
     if fulfill_order(fake_order_id):
         nama_app = "MOODLY" if app_type == 'moodly' else "NEXAPOS"
         flash(f"✅ BERHASIL! User {uid} sudah PREMIUM di {nama_app}.", "success")
     else:
-        flash("❌ GAGAL! Cek server logs (Vercel) untuk detail error.", "error")
+        flash("❌ GAGAL! Cek server logs.", "error")
 
     return redirect('/admin')
 
