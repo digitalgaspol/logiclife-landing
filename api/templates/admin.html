@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard | LogicLife</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -33,6 +33,56 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
             
             <div class="lg:col-span-1 space-y-8">
+
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 h-fit relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-pink-600"></div>
+                    
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="mb-4 p-3 rounded-lg text-xs font-bold {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
+                              {{ message }}
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}
+
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">
+                        <span class="bg-rose-100 text-rose-600 p-1.5 rounded-lg text-sm">⚡</span> 
+                        Aktivasi Manual
+                    </h2>
+                    
+                    <form action="/admin/activate_user" method="POST" class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">UID User (Copy dari WA)</label>
+                            <input type="text" name="uid" placeholder="Contoh: kMHGfbzn..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-rose-500 outline-none font-mono text-slate-700" required>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="app_type" value="moodly" class="peer sr-only" checked>
+                                <div class="peer-checked:bg-rose-600 peer-checked:text-white bg-slate-50 border border-slate-200 text-slate-500 rounded-lg p-2 text-center text-xs font-bold transition hover:bg-slate-100">
+                                    🟣 Moodly
+                                </div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="app_type" value="nexapos" class="peer sr-only">
+                                <div class="peer-checked:bg-blue-600 peer-checked:text-white bg-slate-50 border border-slate-200 text-slate-500 rounded-lg p-2 text-center text-xs font-bold transition hover:bg-slate-100">
+                                    🏪 NexaPOS
+                                </div>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">PIN Keamanan</label>
+                            <input type="password" name="pin" placeholder="Masukkan PIN..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-rose-500 outline-none" required>
+                        </div>
+                        
+                        <button class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-rose-200 transition text-sm flex items-center justify-center gap-2">
+                            <span>🚀</span> Aktifkan Sekarang
+                        </button>
+                    </form>
+                </div>
                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 h-fit relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
                     <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">
@@ -77,7 +127,7 @@
             </div>
 
             <div class="lg:col-span-2">
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden mb-8">
                     <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
                     <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">
                         <span class="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg text-sm">📦</span> 
@@ -85,7 +135,6 @@
                     </h2>
                     
                     <form action="/admin/add" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
                         <div class="space-y-4">
                             <div>
                                 <label class="text-xs font-bold text-slate-500 uppercase">Nama Produk</label>
@@ -140,36 +189,37 @@
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
 
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60">
-            <h2 class="text-lg font-bold mb-6 text-slate-800">📋 Produk Aktif</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {% for item in products %}
-                <div class="border border-slate-200 p-5 rounded-2xl flex gap-5 items-start relative group hover:bg-slate-50 hover:border-slate-300 transition">
-                    <div class="w-20 h-20 bg-white rounded-xl border border-slate-100 flex items-center justify-center p-2">
-                        <img src="{{ item.image_url }}" class="w-full h-full object-contain">
-                    </div>
-                    <div class="flex-grow">
-                        <h3 class="font-bold text-slate-900 text-lg leading-tight mb-1">{{ item.name }}</h3>
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded">Rp {{ item.price }}</span>
-                            <span class="text-xs text-slate-400">{{ item.unit or '' }}</span>
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60">
+                    <h2 class="text-lg font-bold mb-6 text-slate-800">📋 Produk Aktif</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% for item in products %}
+                        <div class="border border-slate-200 p-5 rounded-2xl flex gap-5 items-start relative group hover:bg-slate-50 hover:border-slate-300 transition">
+                            <div class="w-20 h-20 bg-white rounded-xl border border-slate-100 flex items-center justify-center p-2">
+                                <img src="{{ item.image_url }}" class="w-full h-full object-contain">
+                            </div>
+                            <div class="flex-grow">
+                                <h3 class="font-bold text-slate-900 text-lg leading-tight mb-1">{{ item.name }}</h3>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded">Rp {{ item.price }}</span>
+                                    <span class="text-xs text-slate-400">{{ item.unit or '' }}</span>
+                                </div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">ID: {{ item.prefix }}...</p>
+                            </div>
+                            
+                            <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                <a href="/admin/edit/{{ item.id }}" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-amber-500 flex items-center justify-center hover:bg-amber-50 hover:border-amber-200 transition shadow-sm" title="Edit">
+                                    ✏️
+                                </a>
+                                <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Hapus produk ini?')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-red-500 flex items-center justify-center hover:bg-red-50 hover:border-red-200 transition shadow-sm" title="Hapus">
+                                    🗑️
+                                </a>
+                            </div>
                         </div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">ID: {{ item.prefix }}...</p>
-                    </div>
-                    
-                    <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                        <a href="/admin/edit/{{ item.id }}" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-amber-500 flex items-center justify-center hover:bg-amber-50 hover:border-amber-200 transition shadow-sm" title="Edit">
-                            ✏️
-                        </a>
-                        <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Hapus produk ini?')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-red-500 flex items-center justify-center hover:bg-red-50 hover:border-red-200 transition shadow-sm" title="Hapus">
-                            🗑️
-                        </a>
+                        {% endfor %}
                     </div>
                 </div>
-                {% endfor %}
+
             </div>
         </div>
     </div>

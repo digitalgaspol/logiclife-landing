@@ -407,6 +407,28 @@ def delete_product(id):
     if db: db.collection('products').document(id).delete()
     return redirect('/admin')
 
+@app.route('/admin/activate_user', methods=['POST'])
+def admin_activate_user():
+    uid = request.form.get('uid', '').strip()
+    app_type = request.form.get('app_type')
+    pin = request.form.get('pin')
+    
+    if pin != "851912": # Ganti PIN sesuai keinginan Bos
+        flash("❌ PIN Salah!", "error")
+        return redirect('/admin')
+    
+    if not uid:
+        flash("❌ UID Kosong!", "error")
+        return redirect('/admin')
+
+    fake_order_id = f"PRO-{app_type}-{uid}-MANUAL"
+    if fulfill_order(fake_order_id):
+        flash(f"✅ SUKSES! User {uid} aktif di {app_type.upper()}.", "success")
+    else:
+        flash("❌ GAGAL! Cek server logs.", "error")
+
+    return redirect('/admin')
+
 @app.route('/admin/edit/<id>')
 def edit_product_page(id):
     if not session.get('is_admin'): return redirect('/admin')
