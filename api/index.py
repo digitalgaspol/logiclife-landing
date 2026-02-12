@@ -159,40 +159,58 @@ def home():
 
 # --- ROUTE ADMIN DASHBOARD (TAMPILAN) ---
 # 👇 UPDATE BAGIAN INI BIAR PRODUKNYA MUNCUL LAGI 👇
+# 👇 TAMBAHKAN KODE INI UNTUK LOGIN & LOGOUT 👇
+
+# Konfigurasi PIN Admin (Bisa diganti)
+ADMIN_PIN = "M3isy4851"
+
+@app.route('/login', methods=['GET', 'POST'])
+def login_page():
+    error = None
+    if request.method == 'POST':
+        pin = request.form.get('pin')
+        if pin == ADMIN_PIN:
+            session['is_admin'] = True # Simpan "Tiket Masuk"
+            return redirect('/admin') # Arahkan ke Dashboard
+        else:
+            error = "❌ PIN Salah Bos!"
+            
+    return render_template('login.html', error=error)
+
+@app.route('/logout')
+def logout():
+    session.clear() # Robek tiket masuk
+    return redirect('/login')
+
+# 👇 UPDATE ROUTE ADMIN JADI TERKUNCI 👇
 
 @app.route('/admin')
 def admin_dashboard():
-    # 1. Siapkan Tempat Data
-    products_data = []
-    pricing_data = {"nexapos_price": 150000, "moodly_price": 50000} # Default
-    contact_data = {"company": "LogicLife", "email": "admin@logiclife.site"} # Default
+    # 🔒 CEK TIKET: Kalau belum login, tendang ke halaman login
+    if not session.get('is_admin'):
+        return redirect('/login')
 
-    # 2. Ambil Data dari Database (NexaPOS)
+    # ... (Logika ambil data database yg lama tetap sama di sini) ...
+    # Copy logika ambil data products_data, pricing, dll dari kode sebelumnya ke sini
+    
+    products_data = []
+    pricing_data = {"nexapos_price": 150000, "moodly_price": 50000}
+    contact_data = {"company": "LogicLife", "email": "admin@logiclife.site"}
+
     if db:
         try:
-            # Ambil List Produk
             docs = db.collection('products').stream()
             for doc in docs:
-                prod = doc.to_dict()
-                prod['id'] = doc.id
-                products_data.append(prod)
+                prod = doc.to_dict(); prod['id'] = doc.id; products_data.append(prod)
             
-            # Ambil Setting Harga
-            price_doc = db.collection('settings').document('pricing').get()
-            if price_doc.exists: pricing_data = price_doc.to_dict()
+            p_doc = db.collection('settings').document('pricing').get()
+            if p_doc.exists: pricing_data = p_doc.to_dict()
 
-            # Ambil Kontak
-            contact_doc = db.collection('settings').document('contact').get()
-            if contact_doc.exists: contact_data = contact_doc.to_dict()
-            
-        except Exception as e:
-            print(f"⚠️ Gagal ambil data admin: {e}")
+            c_doc = db.collection('settings').document('contact').get()
+            if c_doc.exists: contact_data = c_doc.to_dict()
+        except: pass
 
-    # 3. Kirim ke HTML
-    return render_template('admin.html', 
-                         products=products_data, 
-                         pricing=pricing_data, 
-                         contact=contact_data)
+    return render_template('admin.html', products=products_data, pricing=pricing_data, contact=contact_data)
 
 
 # --- ROUTE ADMIN ACTION (AKTIVASI MANUAL) ---
