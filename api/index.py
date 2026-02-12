@@ -422,6 +422,30 @@ def logout(): session.pop('is_admin', None); return redirect('/')
 # ... (Baris terakhir kodingan lama Bos) ...
 
 # 👇 TEMPEL INI DI PALING BAWAH FILE 👇
+@app.route('/debug_order/<order_id>')
+def debug_order(order_id):
+    logs = []
+    try:
+        logs.append(f"🔍 1. Menerima Order ID: {order_id}")
+        
+        # Cek Koneksi
+        if db: logs.append("✅ DB NexaPOS: Connected")
+        else: logs.append("❌ DB NexaPOS: Disconnected")
+        
+        if db_moodly: logs.append("✅ DB Moodly: Connected")
+        else: logs.append("❌ DB Moodly: Disconnected (Cek MOODLY_CREDENTIALS)")
+        
+        # Eksekusi Fulfill
+        logs.append("⚙️ 2. Menjalankan fungsi fulfill_order()...")
+        sukses = fulfill_order(order_id)
+        
+        if sukses:
+            return "<br>".join(logs) + "<br><h1>✅ SUKSES BESAR! Cek App Sekarang.</h1>"
+        else:
+            return "<br>".join(logs) + "<br><h1>❌ GAGAL! Cek Logs Vercel untuk detail.</h1>"
+
+    except Exception as e:
+        return f"<h1>Error Fatal: {e}</h1>"
 
 def fulfill_order(order_id):
     try:
