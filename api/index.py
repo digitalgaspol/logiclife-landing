@@ -170,27 +170,57 @@ def callback_midtrans():
     except Exception as e: return jsonify({"status": "Error", "message": str(e)}), 500
 
 def fulfill_order(order_id):
-    if db:
-        txn_ref = db.collection('pending_transactions').document(order_id)
-        txn_doc = txn_ref.get()
-        if txn_doc.exists:
-            txn_data = txn_doc.to_dict()
-            if txn_data.get('status') == 'success': return
+    """
+    Fungsi sakti untuk mengubah status user jadi PREMIUM
+    Menerima format order_id: PRO-{APP_ID}-{UID}-{RANDOM}
+    """
+    try:
+        print(f"Processing Order: {order_id}")
+        
+        # 1. Cek apakah ini transaksi Upgrade PRO
+        if order_id.startswith('PRO-'):
+            parts = order_id.split('-')
             
-            email = txn_data.get('email')
-            product_name = txn_data.get('product_name', '').lower()
+            # Variabel penampung
+            uid = None
+            app_id = 'nexapos' # Default kalau format lama
+
+            # 2. Deteksi Format Baru (4 Bagian): PRO-moodly-UID-123
+            if len(parts) >= 4:
+                app_id = parts[1] # 'moodly' atau 'nexapos'
+                uid = parts[2]    # UID user
             
-            users = db.collection('users').where('email', '==', email).limit(1).stream()
-            user_found = False
-            for u in users:
-                user_found = True
-                update = {'is_pro_moodly': True} if 'moodly' in product_name else ({'is_pro': True} if 'nexapos' in product_name else {})
-                if update: db.collection('users').document(u.id).set(update, merge=True)
-            
-            if not user_found:
-                db.collection('prepaid_upgrades').document(email).set({'product_name': product_name, 'paid_at': firestore.SERVER_TIMESTAMP})
-            
-            txn_ref.update({'status': 'success'})
+            # 3. Deteksi Format Lama (3 Bagian): PRO-UID-123 (Khusus NexaPOS lama)
+            elif len(parts) == 3:
+                uid = parts[1]
+
+            # 4. Eksekusi Update ke Firebase
+            if uid and db:
+                user_ref = db.collection('users').document(uid)
+                
+                if app_id == 'moodly':
+                    # Update khusus Moodly
+                    user_ref.update({
+                        'is_pro_moodly': True,
+                        'is_premium': True, # Cadangan biar aman
+                        'updated_at': firestore.SERVER_TIMESTAMP
+                    })
+                    print(f"✅ SUKSES: User {uid} jadi PREMIUM MOODLY")
+                else:
+                    # Update NexaPOS
+                    user_ref.update({
+                        'is_pro': True, # Field lama NexaPOS
+                        'is_premium': True,
+                        'updated_at': firestore.SERVER_TIMESTAMP
+                    })
+                    print(f"✅ SUKSES: User {uid} jadi PREMIUM NEXAPOS")
+                return True
+                
+    except Exception as e:
+        print(f"❌ GAGAL FULFILL: {e}")
+        return False
+    
+    return False
 
 @app.route('/finish')
 def finish(): return "<h1>Transaksi Selesai! Terima kasih.</h1>"
