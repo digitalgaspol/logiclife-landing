@@ -380,6 +380,23 @@ def update_settings():
     # Balik lagi ke halaman admin setelah selesai
     return redirect('/admin')
 
+# 👇 ROUTE HALAMAN PEMBAYARAN QRIS (YANG KETINGGALAN) 😂 👇
+
+@app.route('/payment')
+@app.route('/payment.html') # Jaga-jaga kalau Bos/User terbiasa ngetik .html
+def payment_page():
+    # Ambil data dari URL (kalau Bos mau ngasih link custom ke user)
+    # Contoh link: logiclife.site/payment?product=Moodly
+    product_name = request.args.get('product', 'Aplikasi Premium LogicLife')
+    uid = request.args.get('uid', '')
+    email = request.args.get('email', '')
+    
+    # Render tampilan payment.html yang isi QRIS tadi
+    return render_template('payment.html', 
+                           product_name=product_name, 
+                           uid=uid, 
+                           email=email)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
