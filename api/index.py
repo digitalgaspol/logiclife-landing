@@ -397,6 +397,63 @@ def payment_page():
                            uid=uid, 
                            email=email)
 
+# 👇 PINTU KHUSUS APLIKASI FLUTTER (BIAR GAK LOADING TERUS) 👇
+
+@app.route('/api/get_pricing', methods=['GET'])
+def get_pricing_api():
+    # Tangkap parameter 'app_id' dari Flutter (moodly / nexapos)
+    app_id = request.args.get('app_id', '')
+    
+    # 1. Siapkan harga default (Jaga-jaga kalau DB kosong)
+    pricing_data = {
+        "nexapos_price": 150000, 
+        "moodly_price": 50000,
+        "success": True
+    }
+    
+    # 2. Ambil harga terbaru dari database (yang Bos atur di Admin)
+    if db:
+        try:
+            doc = db.collection('settings').document('pricing').get()
+            if doc.exists:
+                db_prices = doc.to_dict()
+                pricing_data.update(db_prices) # Timpa dengan harga dari DB
+        except Exception as e:
+            print(f"Error API Pricing: {e}")
+            
+    # 3. Sesuaikan respon 'price' utama biar Flutter gampang bacanya
+    if app_id == 'moodly':
+        pricing_data['price'] = pricing_data.get('moodly_price', 50000)
+    elif app_id == 'nexapos':
+        pricing_data['price'] = pricing_data.get('nexapos_price', 150000)
+        
+    # 4. Kirim balikan dalam format JSON
+    return jsonify(pricing_data)
+
+# 👇 PINTU CHECKOUT / TOMBOL BELI DARI APLIKASI 👇
+
+@app.route('/buy_pro', methods=['GET', 'POST'])
+def buy_pro_redirect():
+    # 1. Tangkap data otomatis dari aplikasi Flutter
+    uid = request.args.get('uid', '')
+    email = request.args.get('email', '')
+    app_id = request.args.get('app_id', '')
+    
+    # 2. Tentukan Nama Produk biar keren di halaman QRIS
+    if app_id == 'moodly':
+        product_name = 'Moodly Premium'
+    elif app_id == 'nexapos':
+        product_name = 'NexaPOS PRO'
+    else:
+        product_name = 'LogicLife Premium'
+        
+    # 3. Langsung buka halaman QRIS (payment.html)
+    # Hebatnya: uid & email langsung kita oper ke HTML biar masuk ke tombol WA!
+    return render_template('payment.html', 
+                           product_name=product_name, 
+                           uid=uid, 
+                           email=email)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
