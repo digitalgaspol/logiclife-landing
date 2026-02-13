@@ -1,97 +1,248 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
 <head>
     <title>Admin Dashboard | LogicLife</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Outfit', sans-serif; }</style>
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        /* Hilangkan scrollbar jelek tapi tetap bisa scroll */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 p-6 md:p-10 min-h-screen">
-    <div class="max-w-7xl mx-auto">
-        
-        <div class="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/60">
-            <div class="flex items-center gap-4 mb-4 md:mb-0">
-                <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-200">
-                    ⚙️
-                </div>
-                <div>
-                    <h1 class="text-2xl font-black text-slate-900">Admin Dashboard</h1>
-                    <p class="text-sm text-slate-500 font-medium">Manage your LogicLife products</p>
-                </div>
-            </div>
-            <div class="flex gap-3">
-                <a href="/" target="_blank" class="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-600 font-bold text-sm hover:bg-slate-50 transition flex items-center gap-2">
-                    <span>🌍</span> Lihat Web
-                </a>
-                <a href="/logout" class="px-5 py-2.5 rounded-lg bg-red-50 text-red-600 font-bold text-sm hover:bg-red-100 transition flex items-center gap-2">
-                    <span>🚪</span> Keluar
-                </a>
+<body class="bg-slate-50 text-slate-800 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-slate-900 text-white flex-shrink-0 flex flex-col shadow-2xl z-20 hidden md:flex">
+        <div class="p-6 border-b border-slate-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-lg shadow-lg">⚙️</div>
+            <div>
+                <h1 class="font-black text-xl tracking-tight">LogicLife</h1>
+                <p class="text-xs text-slate-500 font-bold uppercase">Admin Panel v2.0</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-2">
+            <p class="px-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Menu Utama</p>
             
-            <div class="lg:col-span-1 space-y-8">
+            <a href="#aktivasi" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+                <span class="bg-rose-500/10 text-rose-500 group-hover:bg-rose-500 group-hover:text-white p-2 rounded-lg transition">⚡</span>
+                <span class="font-bold text-sm">Aktivasi User</span>
+            </a>
+            
+            <a href="#produk" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+                <span class="bg-indigo-500/10 text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white p-2 rounded-lg transition">📦</span>
+                <span class="font-bold text-sm">Produk Saya</span>
+            </a>
 
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 h-fit relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-rose-500 to-pink-600"></div>
-                    
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                      {% if messages %}
-                        {% for category, message in messages %}
-                          <div class="mb-4 p-3 rounded-lg text-xs font-bold {{ 'bg-green-100 text-green-700' if category == 'success' else 'bg-red-100 text-red-700' }}">
-                              {{ message }}
-                          </div>
-                        {% endfor %}
-                      {% endif %}
-                    {% endwith %}
+            <a href="#pengaturan" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 hover:text-white transition group">
+                <span class="bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white p-2 rounded-lg transition">💰</span>
+                <span class="font-bold text-sm">Harga & Kontak</span>
+            </a>
+        </nav>
 
-                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">
-                        <span class="bg-rose-100 text-rose-600 p-1.5 rounded-lg text-sm">⚡</span> 
-                        Aktivasi Manual
-                    </h2>
-                    
-                    <form action="/admin/activate_user" method="POST" class="space-y-4">
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">UID User (Copy dari WA)</label>
-                            <input type="text" name="uid" placeholder="Contoh: kMHGfbzn..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-rose-500 outline-none font-mono text-slate-700" required>
-                        </div>
+        <div class="p-4 border-t border-slate-800">
+            <a href="/" target="_blank" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition mb-2">
+                <span>🌍</span> <span class="text-xs font-bold">Lihat Website</span>
+            </a>
+            <a href="/logout" class="flex items-center justify-center gap-2 w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-bold text-sm transition shadow-lg shadow-red-900/20">
+                🚪 Keluar
+            </a>
+        </div>
+    </aside>
 
-                        <div class="grid grid-cols-2 gap-2">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="app_type" value="moodly" class="peer sr-only" checked>
-                                <div class="peer-checked:bg-rose-600 peer-checked:text-white bg-slate-50 border border-slate-200 text-slate-500 rounded-lg p-2 text-center text-xs font-bold transition hover:bg-slate-100">
-                                    🟣 Moodly
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="app_type" value="nexapos" class="peer sr-only">
-                                <div class="peer-checked:bg-blue-600 peer-checked:text-white bg-slate-50 border border-slate-200 text-slate-500 rounded-lg p-2 text-center text-xs font-bold transition hover:bg-slate-100">
-                                    🏪 NexaPOS
-                                </div>
-                            </label>
-                        </div>
+    <main class="flex-1 h-full overflow-y-auto bg-slate-50 relative scroll-smooth">
+        
+        <div class="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-30">
+            <span class="font-bold">LogicLife Admin</span>
+            <a href="/logout" class="text-xs bg-red-600 px-3 py-1 rounded">Keluar</a>
+        </div>
 
-                        <div>
-                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">PIN Keamanan</label>
-                            <input type="password" name="pin" placeholder="Masukkan PIN..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-rose-500 outline-none" required>
-                        </div>
-                        
-                        <button class="w-full bg-rose-600 hover:bg-rose-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-rose-200 transition text-sm flex items-center justify-center gap-2">
-                            <span>🚀</span> Aktifkan Sekarang
-                        </button>
-                    </form>
+        <div class="max-w-5xl mx-auto p-6 md:p-12 space-y-12">
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <div class="fixed top-6 right-6 z-50 animate-bounce">
+                {% for category, message in messages %}
+                  <div class="mb-2 p-4 rounded-xl shadow-2xl border flex items-center gap-3 {{ 'bg-green-50 border-green-200 text-green-800' if category == 'success' else 'bg-red-50 border-red-200 text-red-800' }}">
+                      <span class="text-xl">{{ '✅' if category == 'success' else '❌' }}</span>
+                      <p class="font-bold text-sm">{{ message }}</p>
+                  </div>
+                {% endfor %}
                 </div>
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 h-fit relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
-                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">
-                        <span class="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg text-sm">💰</span> 
-                        Harga Aplikasi
-                    </h2>
+              {% endif %}
+            {% endwith %}
+
+
+            <section id="aktivasi" class="scroll-mt-10">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900">Aktivasi User</h2>
+                        <p class="text-slate-500 text-sm">Aktifkan fitur Premium user secara manual.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col md:flex-row">
+                    <div class="bg-gradient-to-br from-rose-500 to-pink-600 w-full md:w-1/3 p-8 text-white flex flex-col justify-between relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h3 class="font-black text-2xl mb-2">Manual Access</h3>
+                            <p class="text-pink-100 text-sm opacity-90">Gunakan fitur ini jika user transfer via QRIS Manual / WhatsApp.</p>
+                        </div>
+                        <div class="mt-8 relative z-10">
+                            <div class="bg-white/20 backdrop-blur-md rounded-xl p-4 border border-white/30">
+                                <p class="text-xs font-bold uppercase mb-1 opacity-70">Tips:</p>
+                                <p class="text-xs">Gunakan fitur <b>"Cari Email"</b> jika user malas menyalin UID.</p>
+                            </div>
+                        </div>
+                        <div class="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
+                        <div class="absolute bottom-0 left-0 w-40 h-40 bg-purple-900 opacity-20 rounded-full blur-3xl transform -translate-x-10 translate-y-10"></div>
+                    </div>
+
+                    <div class="p-8 w-full md:w-2/3">
+                         <div class="mb-6 bg-slate-50 rounded-xl p-4 border border-slate-100">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase mb-2 block">🔍 Cari UID via Email</label>
+                            <div class="flex gap-2">
+                                <input type="email" id="emailSearch" placeholder="Contoh: user@gmail.com" 
+                                       class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-rose-500 transition">
+                                <button type="button" onclick="cariUID()" 
+                                        class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-xs transition whitespace-nowrap">
+                                    CARI UID
+                                </button>
+                            </div>
+                            <p id="searchResult" class="text-[10px] mt-2 font-bold text-slate-400">Hasil pencarian akan muncul di sini.</p>
+                        </div>
+
+                        <form action="/admin/activate_user" method="POST" class="space-y-5">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Target UID</label>
+                                <input type="text" id="uidInput" name="uid" placeholder="UID Otomatis..." 
+                                       class="w-full bg-rose-50 border border-rose-100 text-rose-900 font-mono font-bold rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 outline-none" required readonly>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="app_type" value="moodly" class="peer sr-only" checked>
+                                    <div class="peer-checked:bg-rose-600 peer-checked:text-white bg-white border border-slate-200 text-slate-500 rounded-xl p-3 text-center text-sm font-bold transition hover:bg-slate-50 shadow-sm">
+                                        🟣 Moodly
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="app_type" value="nexapos" class="peer sr-only">
+                                    <div class="peer-checked:bg-blue-600 peer-checked:text-white bg-white border border-slate-200 text-slate-500 rounded-xl p-3 text-center text-sm font-bold transition hover:bg-slate-50 shadow-sm">
+                                        🏪 NexaPOS
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">PIN Admin</label>
+                                <input type="password" name="pin" placeholder="••••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-rose-500 outline-none" required>
+                            </div>
+                            
+                            <button class="w-full bg-rose-600 hover:bg-rose-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-rose-200 transition text-sm flex items-center justify-center gap-2 transform active:scale-95">
+                                <span>🚀</span> EKSEKUSI SEKARANG
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+
+            <section id="produk" class="scroll-mt-10 pt-8 border-t border-slate-200">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900">Manajemen Produk</h2>
+                        <p class="text-slate-500 text-sm">Tambah, Edit, atau Hapus produk di website.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
-                    <form action="/admin/settings" method="POST" class="space-y-5">
+                    <div class="lg:col-span-1">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 sticky top-6">
+                            <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
+                                <span class="bg-indigo-100 text-indigo-600 p-1 rounded-md text-xs">➕</span> Tambah Baru
+                            </h3>
+                            
+                            <form action="/admin/add" method="POST" class="space-y-4">
+                                <input type="text" name="name" placeholder="Nama Produk" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none font-bold" required>
+                                <input type="text" name="tagline" placeholder="Slogan Singkat" class="w-full border border-slate-200 rounded-lg p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" required>
+                                
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="number" name="price" placeholder="Harga (Angka)" class="w-full border border-slate-200 rounded-lg p-3 text-sm font-bold" required>
+                                    <input type="text" name="unit" placeholder="/bulan" class="w-full border border-slate-200 rounded-lg p-3 text-sm">
+                                </div>
+                                
+                                <input type="text" name="original_price" placeholder="Harga Coret (Rp 200k)" class="w-full border border-slate-200 rounded-lg p-3 text-sm text-slate-400" required>
+                                
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" name="prefix" placeholder="ID (BOOK-)" class="w-full border border-slate-200 rounded-lg p-3 text-sm uppercase font-mono" required>
+                                    <input type="text" name="download_url" placeholder="Link Download" class="w-full border border-slate-200 rounded-lg p-3 text-sm text-blue-500">
+                                </div>
+
+                                <input type="text" name="image_url" placeholder="URL Gambar" class="w-full border border-slate-200 rounded-lg p-3 text-sm" required>
+                                
+                                <div>
+                                    <textarea name="description" placeholder="Deskripsi..." required></textarea>
+                                </div>
+
+                                <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-indigo-200 transition">
+                                    Simpan Produk
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for item in products %}
+                            <div class="bg-white border border-slate-200 p-5 rounded-2xl flex gap-4 items-start relative group hover:shadow-md transition">
+                                <div class="w-16 h-16 bg-slate-50 rounded-xl border border-slate-100 flex-shrink-0 flex items-center justify-center p-2">
+                                    <img src="{{ item.image_url }}" class="w-full h-full object-contain">
+                                </div>
+                                <div class="flex-grow min-w-0">
+                                    <h3 class="font-bold text-slate-900 text-base truncate">{{ item.name }}</h3>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded">Rp {{ item.price }}</span>
+                                        <span class="text-[10px] text-slate-400 font-mono">{{ item.prefix }}</span>
+                                    </div>
+                                    <div class="flex gap-2 mt-2">
+                                        <a href="/admin/edit/{{ item.id }}" class="text-xs font-bold text-amber-500 hover:underline">Edit</a>
+                                        <span class="text-slate-300">|</span>
+                                        <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Hapus?')" class="text-xs font-bold text-red-500 hover:underline">Hapus</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            
+                            {% if not products %}
+                            <div class="col-span-2 p-8 text-center text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl">
+                                Belum ada produk. Tambah dulu di sebelah kiri! 👈
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+
+            <section id="pengaturan" class="scroll-mt-10 pt-8 border-t border-slate-200 mb-20">
+                 <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 h-fit relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-teal-500"></div>
+                    
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-bold flex items-center gap-2 text-slate-800">
+                            <span class="bg-emerald-100 text-emerald-600 p-1.5 rounded-lg text-sm">💰</span> 
+                            Harga & Kontak
+                        </h2>
+                    </div>
+                    
+                    <form action="/admin/settings" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase border-b pb-2">Setting Harga (Di App)</h3>
+                            
                             <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
                                 <label class="text-[10px] font-bold text-slate-400 uppercase mb-1 block">NexaPOS PRO</label>
                                 <div class="flex items-center gap-2">
@@ -109,123 +260,61 @@
                             </div>
                         </div>
 
-                        <div class="border-t border-slate-100 my-4 pt-4">
-                            <h3 class="text-xs font-bold text-slate-400 uppercase mb-3">Info Kontak</h3>
-                            <input type="text" name="company" value="{{ contact.company }}" class="w-full mb-2 text-sm border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Nama PT">
-                            <input type="text" name="address" value="{{ contact.address }}" class="w-full mb-2 text-sm border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Alamat">
+                        <div class="space-y-4">
+                            <h3 class="text-xs font-bold text-slate-400 uppercase border-b pb-2">Info Perusahaan</h3>
+                            
+                            <input type="text" name="company" value="{{ contact.company }}" class="w-full text-sm border border-slate-200 rounded-lg p-3 outline-none focus:border-emerald-500" placeholder="Nama PT">
+                            <input type="text" name="address" value="{{ contact.address }}" class="w-full text-sm border border-slate-200 rounded-lg p-3 outline-none focus:border-emerald-500" placeholder="Alamat">
                             <div class="grid grid-cols-2 gap-2">
-                                <input type="number" name="whatsapp" value="{{ contact.whatsapp }}" class="w-full text-sm border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="No WA">
-                                <input type="email" name="email" value="{{ contact.email }}" class="w-full text-sm border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none" placeholder="Email">
+                                <input type="number" name="whatsapp" value="{{ contact.whatsapp }}" class="w-full text-sm border border-slate-200 rounded-lg p-3 outline-none focus:border-emerald-500" placeholder="No WA">
+                                <input type="email" name="email" value="{{ contact.email }}" class="w-full text-sm border border-slate-200 rounded-lg p-3 outline-none focus:border-emerald-500" placeholder="Email">
                             </div>
-                        </div>
-                        
-                        <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-200 transition">
-                            Simpan Perubahan
-                        </button>
-                    </form>
-                </div>
-            </div>
 
-            <div class="lg:col-span-2">
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60 relative overflow-hidden mb-8">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
-                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">
-                        <span class="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg text-sm">📦</span> 
-                        Tambah Produk Baru
-                    </h2>
-                    
-                    <form action="/admin/add" method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">Nama Produk</label>
-                                <input type="text" name="name" class="w-full border border-slate-200 rounded-lg p-3 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" required>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">Tagline / Slogan</label>
-                                <input type="text" name="tagline" class="w-full border border-slate-200 rounded-lg p-3 mt-1 focus:ring-2 focus:ring-indigo-500 outline-none" required>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs font-bold text-slate-500 uppercase">Harga (Angka)</label>
-                                    <input type="number" name="price" class="w-full border border-slate-200 rounded-lg p-3 mt-1 font-bold text-slate-700" required>
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-slate-500 uppercase">Unit</label>
-                                    <input type="text" name="unit" placeholder="/bulan" class="w-full border border-slate-200 rounded-lg p-3 mt-1">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">Harga Coret (Teks)</label>
-                                <input type="text" name="original_price" class="w-full border border-slate-200 rounded-lg p-3 mt-1 text-slate-500" placeholder="Rp 200.000" required>
-                            </div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="text-xs font-bold text-slate-500 uppercase">Prefix ID</label>
-                                    <input type="text" name="prefix" placeholder="BOOK-" class="w-full border border-slate-200 rounded-lg p-3 mt-1 uppercase" required>
-                                </div>
-                                <div>
-                                    <label class="text-xs font-bold text-slate-500 uppercase">Download URL</label>
-                                    <input type="text" name="download_url" class="w-full border border-slate-200 rounded-lg p-3 mt-1 text-blue-600">
-                                </div>
-                            </div>
-                            <div>
-                                <label class="text-xs font-bold text-slate-500 uppercase">Image URL</label>
-                                <input type="text" name="image_url" class="w-full border border-slate-200 rounded-lg p-3 mt-1" required>
-                            </div>
-                        </div>
-
-                        <div class="md:col-span-2">
-                            <label class="text-xs font-bold text-slate-500 uppercase mb-2 block">Deskripsi Lengkap</label>
-                            <textarea name="description" required></textarea>
-                        </div>
-
-                        <div class="md:col-span-2 pt-2">
-                            <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-indigo-200 transition">
-                                + Publikasikan Produk
+                            <button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold shadow-lg shadow-emerald-200 transition mt-4">
+                                Simpan Perubahan
                             </button>
                         </div>
                     </form>
                 </div>
+            </section>
 
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200/60">
-                    <h2 class="text-lg font-bold mb-6 text-slate-800">📋 Produk Aktif</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {% for item in products %}
-                        <div class="border border-slate-200 p-5 rounded-2xl flex gap-5 items-start relative group hover:bg-slate-50 hover:border-slate-300 transition">
-                            <div class="w-20 h-20 bg-white rounded-xl border border-slate-100 flex items-center justify-center p-2">
-                                <img src="{{ item.image_url }}" class="w-full h-full object-contain">
-                            </div>
-                            <div class="flex-grow">
-                                <h3 class="font-bold text-slate-900 text-lg leading-tight mb-1">{{ item.name }}</h3>
-                                <div class="flex items-center gap-2 mb-2">
-                                    <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2 py-0.5 rounded">Rp {{ item.price }}</span>
-                                    <span class="text-xs text-slate-400">{{ item.unit or '' }}</span>
-                                </div>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wide">ID: {{ item.prefix }}...</p>
-                            </div>
-                            
-                            <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                <a href="/admin/edit/{{ item.id }}" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-amber-500 flex items-center justify-center hover:bg-amber-50 hover:border-amber-200 transition shadow-sm" title="Edit">
-                                    ✏️
-                                </a>
-                                <a href="/admin/delete/{{ item.id }}" onclick="return confirm('Hapus produk ini?')" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-red-500 flex items-center justify-center hover:bg-red-50 hover:border-red-200 transition shadow-sm" title="Hapus">
-                                    🗑️
-                                </a>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-            </div>
         </div>
-    </div>
+    </main>
 
     <script>
         CKEDITOR.replace('description');
+
+        function cariUID() {
+            let email = document.getElementById('emailSearch').value;
+            let resultText = document.getElementById('searchResult');
+            let uidInput = document.getElementById('uidInput');
+
+            if(!email) { alert("Isi email dulu bos!"); return; }
+
+            resultText.innerHTML = "⏳ Sedang mencari...";
+            resultText.className = "text-[10px] mt-2 font-bold text-blue-500 animate-pulse";
+
+            let formData = new FormData();
+            formData.append('email', email);
+
+            fetch('/admin/find_uid', { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    uidInput.value = data.uid;
+                    resultText.innerHTML = data.message;
+                    resultText.className = "text-[10px] mt-2 font-bold text-green-600";
+                } else {
+                    uidInput.value = "";
+                    resultText.innerHTML = data.message;
+                    resultText.className = "text-[10px] mt-2 font-bold text-red-500";
+                }
+            })
+            .catch(err => {
+                resultText.innerHTML = "❌ Error koneksi.";
+                resultText.className = "text-[10px] mt-2 font-bold text-red-500";
+            });
+        }
     </script>
 </body>
 </html>

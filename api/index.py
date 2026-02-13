@@ -6,6 +6,7 @@ import json
 import os
 import random
 import datetime
+from firebase_admin import auth
 
 # ==============================================================================
 # 1. INISIALISASI DATABASE & APP
@@ -316,6 +317,32 @@ def update_product_logic(id):
             return f"Gagal Update: {e}"
 
     return redirect('/admin') # Balik ke dashboard
+
+# 👇 ROUTE BARU: CARI UID PAKAI EMAIL 👇
+@app.route('/admin/find_uid', methods=['POST'])
+def find_uid_by_email():
+    # Cek Login Admin (Opsional, nyalakan kalau mau aman)
+    # if not session.get('is_admin'): return jsonify({'success': False, 'message': 'Login dulu bos!'})
+
+    email = request.form.get('email', '').strip()
+    
+    if not email:
+        return jsonify({'success': False, 'message': 'Email kosong!'})
+
+    try:
+        # Cari user di database Auth Firebase
+        user = auth.get_user_by_email(email)
+        return jsonify({
+            'success': True, 
+            'uid': user.uid, 
+            'message': f'✅ Ditemukan: {user.uid}'
+        })
+        
+    except auth.UserNotFoundError:
+        return jsonify({'success': False, 'message': '❌ User belum login/daftar di App!'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
