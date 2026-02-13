@@ -315,6 +315,22 @@
                 resultText.className = "text-[10px] mt-2 font-bold text-red-500";
             });
         }
+
+        // 👇 TAMBAHKAN SCRIPT INI DI PALING BAWAH (SEBELUM </body>) 👇
+
+        // Fitur Auto-Hide Notifikasi (Flash Message)
+        setTimeout(function() {
+            // Cari elemen notifikasi di pojok kanan atas
+            let flashContainer = document.querySelector('.fixed.top-6.right-6');
+            if (flashContainer) {
+               // Efek perlahan menghilang (fade out)
+               flashContainer.style.transition = "opacity 0.5s ease";
+               flashContainer.style.opacity = "0";
+        
+              // Hapus elemen dari HTML setelah efek fade out selesai
+              setTimeout(() => flashContainer.remove(), 500);
+           }
+        }, 3000); // 3000 = 3 detik. Bos bisa ganti angkanya kalau mau lebih lama.
     </script>
 </body>
 </html>
