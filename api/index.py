@@ -343,6 +343,43 @@ def find_uid_by_email():
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
+# 👇 ROUTE PENGATURAN (HARGA & KONTAK) YANG KETINGGALAN 😂 👇
+
+@app.route('/admin/settings', methods=['POST'])
+def update_settings():
+    # 🔒 Cek Tiket Admin (Biar aman)
+    if not session.get('is_admin'): 
+        return redirect('/login')
+    
+    if db:
+        try:
+            # 1. Simpan Info Kontak (Perusahaan, WA, Email, Alamat)
+            db.collection('settings').document('contact').set({
+                "company": request.form.get('company', ''), 
+                "address": request.form.get('address', ''),
+                "whatsapp": request.form.get('whatsapp', ''), 
+                "email": request.form.get('email', '').strip()
+            })
+            
+            # 2. Ambil input harga dari form HTML
+            nexa_price = request.form.get('nexapos_price')
+            mood_price = request.form.get('moodly_price')
+            
+            # 3. Simpan Harga Aplikasi (Pastikan jadi angka/integer)
+            db.collection('settings').document('pricing').set({
+                'nexapos_price': int(nexa_price) if nexa_price else 150000,
+                'moodly_price': int(mood_price) if mood_price else 50000
+            }, merge=True)
+            
+            flash("✅ Pengaturan Harga & Kontak Berhasil Disimpan!", "success")
+            
+        except Exception as e:
+            print(f"❌ Error Simpan Settings: {e}")
+            flash(f"❌ Gagal menyimpan: {e}", "error")
+
+    # Balik lagi ke halaman admin setelah selesai
+    return redirect('/admin')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
