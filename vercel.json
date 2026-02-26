@@ -13,3 +13,12 @@
         }
     ]
 }
+
+{
+  "rewrites": [
+    {
+      "source": "/__/auth/:match*",
+      "destination": "https://cuan-app-database.firebaseapp.com/__/auth/:match*"
+    }
+  ]
+}
