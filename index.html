@@ -36,7 +36,7 @@
 
     <nav class="glass-nav sticky top-0 z-50">
         <div class="container mx-auto px-6 h-20 flex justify-between items-center">
-            <a href="/" class="flex items-center gap-3 group cursor-pointer">
+            <a href="#" class="flex items-center gap-3 group cursor-pointer">
                 <div class="relative w-10 h-10">
                     <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-xl rotate-6 opacity-40 group-hover:rotate-12 transition-transform duration-300 blur-sm"></div>
                     <div class="relative w-full h-full bg-white/10 backdrop-blur-md border border-white/20 rounded-xl flex items-center justify-center shadow-sm z-10 transition-transform group-hover:scale-105">
@@ -56,12 +56,13 @@
             <div class="hidden md:flex gap-8 font-medium text-slate-300 text-sm">
                 <a href="#produk" class="hover:text-white transition">Produk</a>
                 <a href="#keunggulan" class="hover:text-white transition">Keunggulan</a>
+                <a href="#tentang" class="hover:text-white transition">Tentang Kami</a>
             </div>
             <a href="#produk" class="px-6 py-2.5 rounded-full bg-white text-black font-bold text-sm hover:bg-indigo-500 hover:text-white transition shadow-[0_0_15px_rgba(255,255,255,0.2)]">Jelajahi App</a>
         </div>
     </nav>
 
-    <header class="relative pt-32 pb-24 px-6 text-center">
+    <header class="relative pt-32 pb-20 px-6 text-center">
         <div class="relative z-10 max-w-4xl mx-auto">
             <div class="inline-flex items-center gap-2 py-1.5 px-5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-bold tracking-wider mb-8">
                 <span class="relative flex h-2 w-2">
@@ -72,49 +73,208 @@
             </div>
             
             <h1 class="text-5xl md:text-7xl font-black text-white mb-6 leading-tight tracking-tight">
-                Satu Ekosistem, <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Jutaan Peluang.</span>
+                Rebahan Jadi Cuan, <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">Hidup Lebih Bebas.</span>
             </h1>
             
             <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-                Kami membangun teknologi yang mempermudah hidup Anda. Mulai dari aplikasi penghasil uang harian hingga sistem manajemen bisnis kelas atas.
+                Tinggalkan cara lama mencari penghasilan tambahan. Bergabunglah dengan puluhan ribu pengguna yang sudah membuktikan kemudahan ekosistem LogicLife.
             </p>
             
-            <a href="#produk" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-bold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:scale-105 transition transform flex items-center justify-center gap-2 mx-auto w-max">
-                Lihat Semua Produk 🚀
-            </a>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#produk" class="px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full font-bold shadow-[0_0_20px_rgba(99,102,241,0.4)] hover:scale-105 transition transform flex items-center justify-center gap-2">
+                    Mulai Hasilkan Uang 🚀
+                </a>
+                <a href="#keunggulan" class="px-8 py-4 bg-white/5 border border-white/10 text-white rounded-full font-bold hover:bg-white/10 transition transform flex items-center justify-center gap-2">
+                    Pelajari Rahasianya
+                </a>
+            </div>
         </div>
     </header>
 
-    <section id="produk" class="container mx-auto px-6 py-16 relative z-10">
+    <div class="container mx-auto px-6 relative z-10 mb-20">
+        <div class="glass-card rounded-3xl py-8 px-10 border-t border-l border-white/10 flex flex-wrap justify-around items-center text-center gap-8 shadow-2xl">
+            <div>
+                <h3 class="text-4xl font-black text-white mb-1">50K+</h3>
+                <p class="text-slate-400 text-sm font-bold uppercase tracking-wider">Pengguna Aktif</p>
+            </div>
+            <div class="w-px h-12 bg-slate-700 hidden md:block"></div>
+            <div>
+                <h3 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600 mb-1">Rp 1M+</h3>
+                <p class="text-slate-400 text-sm font-bold uppercase tracking-wider">Total Pencairan</p>
+            </div>
+            <div class="w-px h-12 bg-slate-700 hidden md:block"></div>
+            <div>
+                <h3 class="text-4xl font-black text-emerald-400 mb-1">100%</h3>
+                <p class="text-slate-400 text-sm font-bold uppercase tracking-wider">Aman & Terbukti</p>
+            </div>
+        </div>
+    </div>
+
+    <section id="produk" class="container mx-auto px-6 py-10 relative z-10">
         <div class="text-center mb-16">
-            <h2 class="text-3xl font-black text-white mb-4">Aplikasi Unggulan Kami</h2>
-            <p class="text-slate-400">Pilih senjata andalanmu hari ini.</p>
+            <h2 class="text-3xl md:text-5xl font-black text-white mb-4">Pilih Senjata Cuanmu</h2>
+            <p class="text-slate-400 max-w-xl mx-auto">Download gratis sekarang dan mulai kumpulkan koin sultan yang bisa dicairkan ke e-Wallet favoritmu.</p>
         </div>
 
         <div id="productGrid" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div class="col-span-full flex flex-col items-center justify-center py-20">
                 <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-                <p class="text-slate-400 font-bold tracking-widest animate-pulse">MEMUAT DATA DARI BRANKAS...</p>
+                <p class="text-slate-400 font-bold tracking-widest animate-pulse">MEMUAT APLIKASI...</p>
             </div>
         </div>
     </section>
 
-    <footer class="bg-[#050810] text-white py-16 mt-20 border-t border-white/5">
-        <div class="container mx-auto px-6 text-center">
-            <div class="mb-8">
-                <h3 class="text-2xl font-black mb-2 tracking-tight">LogicLife Digital</h3>
-                <p class="text-slate-500 max-w-md mx-auto text-sm">Indonesia</p>
+    <section id="keunggulan" class="container mx-auto px-6 py-20 relative z-10">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-black text-white mb-4">Kenapa Wajib Pakai LogicLife?</h2>
+            <p class="text-slate-400">Kami bukan sekadar aplikasi, kami adalah solusi finansial digitalmu.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div class="glass-card p-8 rounded-3xl text-left border-t border-l border-white/5 hover:bg-slate-800/50 transition">
+                <div class="w-14 h-14 bg-amber-500/20 rounded-2xl flex items-center justify-center text-amber-500 mb-6 text-2xl">⚡</div>
+                <h3 class="text-xl font-bold text-white mb-3">Pencairan Kilat (Anti Lelet)</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Tinggalkan aplikasi yang antrean WD-nya berminggu-minggu. Di sini, admin standby ACC penarikanmu setiap hari langsung ke DANA, OVO, atau Gopay!</p>
             </div>
-            <div class="flex flex-wrap justify-center gap-4 mb-8">
-                <a href="https://wa.me/6287776067369" target="_blank" class="px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition flex items-center gap-2 text-sm font-bold">
-                    💬 Hubungi Developer
-                </a>
-                <a href="mailto:admin@logiclife.site" class="px-6 py-3 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 transition flex items-center gap-2 text-sm font-bold">
+            
+            <div class="glass-card p-8 rounded-3xl text-left border-t border-l border-white/5 hover:bg-slate-800/50 transition">
+                <div class="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 mb-6 text-2xl">🛡️</div>
+                <h3 class="text-xl font-bold text-white mb-3">100% Gratis Tanpa Modal</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Kami benci penipuan. Aplikasi kami murni 100% gratis tanpa perlu deposit atau top-up sepeserpun. Modalmu cuma HP dan koneksi internet.</p>
+            </div>
+            
+            <div class="glass-card p-8 rounded-3xl text-left border-t border-l border-white/5 hover:bg-slate-800/50 transition">
+                <div class="w-14 h-14 bg-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400 mb-6 text-2xl">📱</div>
+                <h3 class="text-xl font-bold text-white mb-3">Super Ringan & Hemat Kuota</h3>
+                <p class="text-slate-400 text-sm leading-relaxed">Didesain khusus agar lancar dimainkan di semua jenis HP android. Tidak bikin memori penuh dan pastinya hemat pemakaian data internet.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="tentang" class="py-20 relative z-10 bg-slate-900/50 border-y border-white/5">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl md:text-5xl font-black text-white mb-6">Tentang <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">LogicLife Digital.</span></h2>
+                    <p class="text-slate-400 mb-6 leading-relaxed text-lg">
+                        Berdiri dengan satu visi besar: <strong class="text-white">Membuat teknologi yang menghasilkan untuk semua orang.</strong> 
+                    </p>
+                    <p class="text-slate-400 mb-8 leading-relaxed">
+                        Kami percaya bahwa di era digital ini, smartphone yang Anda pegang bukanlah sekadar alat komunikasi, melainkan mesin pencetak peluang. Tim developer kami yang berdedikasi tinggi terus menciptakan ekosistem aplikasi yang aman, transparan, dan terbukti membayar penggunanya.
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-xl">👨‍💻</div>
+                        <div>
+                            <p class="text-white font-bold">Tim Developer Profesional</p>
+                            <p class="text-sm text-slate-500">Berbasis di Indonesia 🇮🇩</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-indigo-500 to-pink-500 rounded-3xl transform rotate-3 opacity-30 blur-lg"></div>
+                    <img src="https://images.unsplash.com/photo-1551434678-e076c223a692?q=80&w=2070&auto=format&fit=crop" alt="Tim LogicLife" class="relative rounded-3xl border border-white/10 shadow-2xl object-cover h-80 w-full opacity-80 mix-blend-luminosity hover:mix-blend-normal transition duration-500">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mx-auto px-6 py-20 relative z-10">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-black text-white mb-4">Kata Mereka Yang Sudah Panen</h2>
+            <p class="text-slate-400">Jangan cuma jadi penonton, buktikan sendiri!</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div class="glass-card p-8 rounded-3xl relative">
+                <div class="absolute top-4 right-6 text-4xl opacity-20">"</div>
+                <div class="flex text-amber-400 mb-4 text-sm">⭐⭐⭐⭐⭐</div>
+                <p class="text-slate-300 text-sm mb-6 leading-relaxed">"Sumpah LogicCuan ngebantu banget! Awalnya iseng doang main pas jam istirahat kerja, eh ternyata koinnya beneran bisa ditarik ke DANA. Lumayan buat jajan kopi tiap hari!"</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-tr from-amber-400 to-amber-600 rounded-full flex items-center justify-center font-bold text-black text-lg">BP</div>
+                    <div><div class="font-bold text-white text-sm">Budi Pratama</div><div class="text-xs text-slate-400">Karyawan Swasta</div></div>
+                </div>
+            </div>
+            
+            <div class="glass-card p-8 rounded-3xl relative">
+                <div class="absolute top-4 right-6 text-4xl opacity-20">"</div>
+                <div class="flex text-amber-400 mb-4 text-sm">⭐⭐⭐⭐⭐</div>
+                <p class="text-slate-300 text-sm mb-6 leading-relaxed">"Gila sih ini apk paling legit tahun 2026. Ga pake syarat aneh-aneh kaya apk sebelah yang ujung-ujungnya disuruh depo. Penarikan hari ini di-request, sore langsung landing!"</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-tr from-pink-400 to-purple-600 rounded-full flex items-center justify-center font-bold text-white text-lg">SK</div>
+                    <div><div class="font-bold text-white text-sm">Siska Khoirunnisa</div><div class="text-xs text-slate-400">Mahasiswi</div></div>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 rounded-3xl relative">
+                <div class="absolute top-4 right-6 text-4xl opacity-20">"</div>
+                <div class="flex text-amber-400 mb-4 text-sm">⭐⭐⭐⭐⭐</div>
+                <p class="text-slate-300 text-sm mb-6 leading-relaxed">"Adminnya gercep banget. Pernah salah masukin nomor DANA, langsung chat support dan langsung dibantuin saat itu juga. Sukses terus LogicLife!"</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-gradient-to-tr from-emerald-400 to-teal-600 rounded-full flex items-center justify-center font-bold text-white text-lg">AR</div>
+                    <div><div class="font-bold text-white text-sm">Andi Rianto</div><div class="text-xs text-slate-400">Driver Ojol</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mx-auto px-6 py-10 mb-20 relative z-10">
+        <div class="max-w-3xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-3xl font-black text-white mb-4">Pertanyaan Umum (FAQ)</h2>
+            </div>
+            
+            <div class="space-y-4">
+                <details class="glass-card p-6 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-white flex justify-between items-center outline-none">
+                        Apakah aplikasi ini benar-benar gratis?
+                        <span class="text-indigo-400 group-open:rotate-180 transition transform">▼</span>
+                    </summary>
+                    <p class="text-slate-400 text-sm mt-4 leading-relaxed border-t border-slate-700 pt-4">Tentu saja! 100% gratis. Kami tidak akan pernah meminta Anda untuk melakukan deposit, transfer, atau top-up. Sistem kami murni memberi reward atas aktivitas Anda di dalam aplikasi.</p>
+                </details>
+                
+                <details class="glass-card p-6 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-white flex justify-between items-center outline-none">
+                        Berapa lama proses pencairan saldo?
+                        <span class="text-indigo-400 group-open:rotate-180 transition transform">▼</span>
+                    </summary>
+                    <p class="text-slate-400 text-sm mt-4 leading-relaxed border-t border-slate-700 pt-4">Kami memiliki sistem pencairan harian. Normalnya, saldo akan masuk ke akun DANA atau OVO Anda dalam waktu 1x24 jam di hari kerja. Namun seringkali masuk dalam hitungan jam!</p>
+                </details>
+
+                <details class="glass-card p-6 rounded-2xl group cursor-pointer">
+                    <summary class="font-bold text-white flex justify-between items-center outline-none">
+                        Apakah aman dari virus / malware?
+                        <span class="text-indigo-400 group-open:rotate-180 transition transform">▼</span>
+                    </summary>
+                    <p class="text-slate-400 text-sm mt-4 leading-relaxed border-t border-slate-700 pt-4">Sangat aman. File APK kami selalu melewati tahap pemindaian keamanan (Google Play Protect standard) sebelum dirilis ke publik. Data pengguna kami enkripsi penuh.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#050810] text-white py-16 mt-20 border-t border-white/5 relative z-10">
+        <div class="container mx-auto px-6 text-center">
+            <div class="mb-8 flex justify-center items-center gap-2">
+                <svg class="w-8 h-8 text-indigo-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M14 7H17C18.6569 7 20 8.34315 20 10V10C20 11.6569 18.6569 13 17 13H14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M10 17H7C5.34315 17 4 15.6569 4 14V14C4 12.3431 5.34315 11 7 11H10" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+                <h3 class="text-2xl font-black tracking-tight">LogicLife Digital</h3>
+            </div>
+            <p class="text-slate-500 max-w-md mx-auto text-sm mb-8">Solusi ekosistem digital terpadu. Memberikan kemudahan dan keuntungan finansial langsung dari genggaman Anda.</p>
+            
+            <div class="flex flex-wrap justify-center gap-4 mb-10">
+                <a href="mailto:admin@logiclife.site" target="_blank" class="px-6 py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition flex items-center gap-2 text-sm font-bold">
                     📧 admin@logiclife.site
                 </a>
             </div>
-            <p class="text-xs text-slate-600">&copy; 2026 LogicLife Ecosystem. All rights reserved.</p>
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 max-w-4xl mx-auto">
+                <p class="text-xs text-slate-600">&copy; 2026 LogicLife Ecosystem. All rights reserved.</p>
+                <div class="flex gap-4 text-xs text-slate-500">
+                    <a href="#" class="hover:text-white transition">Syarat & Ketentuan</a>
+                    <a href="#" class="hover:text-white transition">Kebijakan Privasi</a>
+                </div>
+            </div>
         </div>
     </footer>
 
@@ -138,31 +298,26 @@
             const wadahGrid = document.getElementById('productGrid');
             
             try {
-                // Ambil data dari koleksi "products", urutkan dari yang terbaru
                 const q = query(collection(db, "products"), orderBy("created_at", "desc"));
                 const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
-                    wadahGrid.innerHTML = '<p class="text-slate-500 text-center col-span-full py-10">Belum ada aplikasi yang di-upload oleh CEO. 🛠️</p>';
+                    wadahGrid.innerHTML = '<p class="text-slate-500 text-center col-span-full py-10">Aplikasi sedang dalam maintenance. Silakan kembali lagi nanti! 🛠️</p>';
                     return;
                 }
 
-                wadahGrid.innerHTML = ''; // Hapus loading spinner
+                wadahGrid.innerHTML = ''; 
 
-                // Looping datanya dan cetak HTML-nya
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     const appId = doc.id;
                     
-                    // Cek apakah aplikasinya diset "SEDANG VIRAL" di Admin
                     const badgeHot = data.is_hot ? `<div class="absolute top-4 right-4 bg-amber-500 text-black px-3 py-1 rounded-full text-[10px] font-bold shadow-[0_0_10px_rgba(245,158,11,0.5)] z-20">🔥 SEDANG VIRAL</div>` : '';
 
-                    // Cek warna gradasi kartu (Biar ada beda kalau dia viral atau nggak)
                     const gradasiAtas = data.is_hot ? "from-amber-900/40" : "from-indigo-900/40";
                     const warnaTeks = data.is_hot ? "text-amber-500" : "text-indigo-400";
                     const hoverTombol = data.is_hot ? "hover:bg-amber-500 text-black bg-amber-400" : "bg-white hover:bg-indigo-500 text-black hover:text-white";
 
-                    // Rakit Kartu HTML-nya
                     const kartuHTML = `
                     <div class="glass-card rounded-3xl p-1 overflow-hidden group hover:-translate-y-2 transition duration-300 relative">
                         <div class="absolute inset-0 bg-gradient-to-b from-white to-transparent opacity-0 group-hover:opacity-10 transition duration-500"></div>
@@ -170,31 +325,29 @@
                         <div class="bg-slate-900 rounded-[23px] h-full flex flex-col relative z-10">
                             <div class="h-48 bg-gradient-to-br ${gradasiAtas} to-slate-900 flex items-center justify-center border-b border-slate-800 relative overflow-hidden p-6">
                                 ${badgeHot}
-                                <img src="${data.image_url}" alt="Logo ${data.name}" class="w-full h-full object-contain drop-shadow-2xl group-hover:scale-110 transition duration-500" onerror="this.style.display='none'">
+                                <img src="${data.image_url}" alt="Logo ${data.name}" class="w-32 h-32 object-contain drop-shadow-2xl group-hover:scale-110 transition duration-500" onerror="this.style.display='none'">
                             </div>
                             <div class="p-8 flex-grow flex flex-col">
                                 <h3 class="text-2xl font-black text-white mb-1">${data.name}</h3>
                                 <p class="text-xs font-bold ${warnaTeks} mb-4 tracking-wider uppercase">${data.tagline}</p>
-                                <p class="text-slate-400 text-sm mb-8 leading-relaxed">${data.description}</p>
+                                <p class="text-slate-400 text-sm mb-8 leading-relaxed line-clamp-3">${data.description.replace(/\n/g, ' ')}</p>
                                 
-                                <a href="/app.html?id=${appId}" class="mt-auto block w-full ${hoverTombol} text-center py-3 rounded-xl font-bold transition shadow-lg">
-                                    Lihat Detail →
+                                <a href="/app.html?id=${appId}" class="mt-auto block w-full ${hoverTombol} text-center py-3 rounded-xl font-bold transition shadow-lg flex justify-center items-center gap-2">
+                                    <span>⬇️</span> Download Aplikasi
                                 </a>
                             </div>
                         </div>
                     </div>
                     `;
-                    
-                    wadahGrid.innerHTML += kartuHTML; // Masukkan ke wadah
+                    wadahGrid.innerHTML += kartuHTML; 
                 });
 
             } catch (error) {
                 console.error("Gagal nyedot data: ", error);
-                wadahGrid.innerHTML = '<p class="text-red-500 font-bold text-center col-span-full py-10">❌ Gagal terhubung ke Brankas. Coba refresh halaman.</p>';
+                wadahGrid.innerHTML = '<p class="text-red-500 font-bold text-center col-span-full py-10">❌ Gagal memuat aplikasi. Cek koneksi internet Anda.</p>';
             }
         }
 
-        // Panggil fungsi sedot data saat halaman dibuka
         muatProduk();
     </script>
 </body>
