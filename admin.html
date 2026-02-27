@@ -23,22 +23,29 @@
         <p id="pesanError" class="text-red-500 font-bold mt-4 hidden">❌ PIN Salah Bos!</p>
     </div>
 
-
     <div id="layarAdmin" class="max-w-3xl w-full mx-auto hidden mt-10 pb-20">
         <div class="text-center mb-10">
             <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-amber-600">RUANG KENDALI CEO</h1>
-            <p class="text-slate-400 mt-2">Tambah Aplikasi Baru ke Etalase LogicLife</p>
+            <p class="text-slate-400 mt-2">Tambah Baru atau Edit Aplikasi di Etalase</p>
             <button id="btnTutup" class="mt-4 text-sm text-red-400 hover:text-red-300 font-bold underline">🔒 Kunci Kembali</button>
         </div>
 
         <div class="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl">
             <form id="formTambahApp" class="space-y-6">
+                
                 <div>
                     <label class="block text-sm font-bold text-slate-400 mb-2">ID Aplikasi (Huruf kecil semua, tanpa spasi)</label>
-                    <input type="text" id="app_id" placeholder="misal: logiccuan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition">
+                    <div class="flex gap-3">
+                        <input type="text" id="app_id" placeholder="misal: logiccuan" required class="flex-grow bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition">
+                        
+                        <button type="button" id="btnCari" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 rounded-xl transition shadow-lg flex items-center gap-2">
+                            <span>🔍</span> Cari
+                        </button>
+                    </div>
+                    <p id="statusCari" class="text-xs mt-2 text-slate-400">Ketik ID lalu klik Cari untuk mengedit data aplikasi yang sudah ada.</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="border-t border-slate-700 my-6"></div> <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-bold text-slate-400 mb-2">Nama Aplikasi</label>
                         <input type="text" id="app_name" placeholder="misal: LogicCuan" required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition">
@@ -50,13 +57,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-bold text-slate-400 mb-2">Deskripsi Promosi</label>
-                    <textarea id="app_desc" rows="3" placeholder="Jelaskan kenapa orang harus download aplikasi ini..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition"></textarea>
+                    <label class="block text-sm font-bold text-slate-400 mb-2">Deskripsi Promosi (Gunakan 'Enter' untuk bikin poin-poin/checklist)</label>
+                    <textarea id="app_desc" rows="4" placeholder="Cair ke DANA langsung...&#10;Bebas virus...&#10;Banyak koin gratis..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition whitespace-pre-wrap"></textarea>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-bold text-slate-400 mb-2">Link Gambar Logo/Banner (.png/.jpg)</label>
+                        <label class="block text-sm font-bold text-slate-400 mb-2">Link Gambar Logo (Direct Link .png/.jpg)</label>
                         <input type="url" id="image_url" placeholder="https://..." required class="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-white focus:border-amber-500 outline-none transition">
                     </div>
                     <div>
@@ -71,17 +78,17 @@
                 </div>
 
                 <button type="submit" id="btnSimpan" class="w-full bg-gradient-to-r from-amber-400 to-amber-600 text-black font-black text-lg py-4 rounded-xl shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-[1.02] transition">
-                    🚀 UPLOAD KE DATABASE
+                    🚀 UPLOAD DATA BARU
                 </button>
             </form>
         </div>
     </div>
 
     <script type="module">
+        // Perhatikan kita menambahkan getDoc untuk bisa "Membaca" data dari Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Kunci Brankas Bos
         const firebaseConfig = {
             apiKey: "AIzaSyCcikKuctVp6fI0XpxZiVPflzQtBUyqGNQ",
             authDomain: "ruang-ceo.firebaseapp.com",
@@ -91,51 +98,95 @@
             appId: "1:746766002415:web:6ef5c75c811120f67bd31a"
         };
 
-        let db; // Database baru nyala kalau PIN benar
+        let db;
 
-        // --- LOGIKA SATPAM (GEMBOK PIN) ---
+        // --- GEMBOK CEO ---
         const PIN_RAHASIA = "M3isy4851"; 
         const btnBuka = document.getElementById('btnBuka');
         const pinInput = document.getElementById('pinInput');
         const layarGembok = document.getElementById('layarGembok');
         const layarAdmin = document.getElementById('layarAdmin');
-        const pesanError = document.getElementById('pesanError');
-        const btnTutup = document.getElementById('btnTutup');
-
+        
         btnBuka.addEventListener('click', () => {
             if (pinInput.value === PIN_RAHASIA) {
-                // PIN Benar! Buka form dan nyalakan Firebase
                 layarGembok.classList.add('hidden');
                 layarAdmin.classList.remove('hidden');
-                document.body.classList.remove('justify-center', 'items-center'); // Benerin layout
+                document.body.classList.remove('justify-center', 'items-center'); 
                 
-                // Nyalakan Mesin Firebase sekarang
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
             } else {
-                // PIN Salah
-                pesanError.classList.remove('hidden');
-                pinInput.value = ''; // Kosongkan input
+                document.getElementById('pesanError').classList.remove('hidden');
+                pinInput.value = ''; 
+            }
+        });
+        pinInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') btnBuka.click(); });
+        document.getElementById('btnTutup').addEventListener('click', () => { location.reload(); });
+
+        // --- FITUR BARU: CARI & EDIT DATA LAMA ---
+        const btnCari = document.getElementById('btnCari');
+        const statusCari = document.getElementById('statusCari');
+        const btnSimpan = document.getElementById('btnSimpan');
+
+        btnCari.addEventListener('click', async () => {
+            const appId = document.getElementById('app_id').value.trim().toLowerCase();
+            
+            if (!appId) {
+                alert("Isi ID Aplikasi dulu Bos buat dicari!");
+                return;
+            }
+
+            btnCari.innerHTML = "⏳...";
+            btnCari.disabled = true;
+
+            try {
+                // Sedot data dari Firebase berdasarkan ID
+                const docRef = doc(db, "products", appId);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    // Kalau datanya KETEMU, masukkan ke dalam kolom-kolom form
+                    const data = docSnap.data();
+                    document.getElementById('app_name').value = data.name || "";
+                    document.getElementById('app_tagline').value = data.tagline || "";
+                    document.getElementById('app_desc').value = data.description || "";
+                    document.getElementById('image_url').value = data.image_url || "";
+                    document.getElementById('download_url').value = data.download_url || "";
+                    document.getElementById('is_hot').checked = data.is_hot || false;
+
+                    // Beri notifikasi hijau
+                    statusCari.innerHTML = "✅ Data Ditemukan! Silakan edit lalu klik tombol Update di bawah.";
+                    statusCari.className = "text-xs mt-2 text-emerald-400 font-bold";
+                    btnSimpan.innerHTML = "🔄 UPDATE DATA APLIKASI";
+                } else {
+                    // Kalau datanya GAK KETEMU (Aplikasi baru)
+                    statusCari.innerHTML = "✨ Aplikasi Belum Ada! Silakan isi sebagai data baru.";
+                    statusCari.className = "text-xs mt-2 text-amber-400 font-bold";
+                    btnSimpan.innerHTML = "🚀 UPLOAD DATA BARU";
+                    
+                    // Kosongkan formnya biar bersih
+                    document.getElementById('app_name').value = "";
+                    document.getElementById('app_tagline').value = "";
+                    document.getElementById('app_desc').value = "";
+                    document.getElementById('image_url').value = "";
+                    document.getElementById('download_url').value = "";
+                    document.getElementById('is_hot').checked = false;
+                }
+            } catch (error) {
+                console.error("Error mencari data: ", error);
+                alert("Gagal mencari data. Cek koneksi internet Bos!");
+            } finally {
+                btnCari.innerHTML = "<span>🔍</span> Cari";
+                btnCari.disabled = false;
             }
         });
 
-        // Biar bisa pencet Enter pas masukin PIN
-        pinInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') btnBuka.click();
-        });
-
-        // Tombol Kunci Kembali
-        btnTutup.addEventListener('click', () => {
-            location.reload(); // Refresh halaman buat ngegembok ulang
-        });
-
-        // --- LOGIKA SIMPAN DATA (Sama kayak tadi) ---
+        // --- LOGIKA SIMPAN (Mendukung Edit Data pakai merge: true) ---
         const form = document.getElementById('formTambahApp');
-        const btnSimpan = document.getElementById('btnSimpan');
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault(); 
-            btnSimpan.innerHTML = "⏳ MENGIRIM DATA...";
+            btnSimpan.innerHTML = "⏳ MENYIMPAN DATA...";
             btnSimpan.disabled = true;
 
             const appId = document.getElementById('app_id').value.trim().toLowerCase();
@@ -147,18 +198,25 @@
                 image_url: document.getElementById('image_url').value,
                 download_url: document.getElementById('download_url').value,
                 is_hot: document.getElementById('is_hot').checked,
-                created_at: serverTimestamp()
+                // Menggunakan updated_at agar waktu pembaruan tercatat
+                updated_at: serverTimestamp(),
+                // Jaga-jaga kalau data baru, kita butuh created_at
+                created_at: serverTimestamp() 
             };
 
             try {
-                await setDoc(doc(db, "products", appId), dataApp);
-                alert("✅ BERHASIL BOS! Aplikasi masuk ke Etalase!");
+                // Gunakan merge: true biar kalau kita nge-edit, data lain gak terhapus
+                await setDoc(doc(db, "products", appId), dataApp, { merge: true });
+                
+                alert("✅ BERHASIL BOS! Data Aplikasi sudah tersimpan di Firebase!");
                 form.reset(); 
+                statusCari.innerHTML = "Ketik ID lalu klik Cari untuk mengedit data aplikasi yang sudah ada.";
+                statusCari.className = "text-xs mt-2 text-slate-400";
+                btnSimpan.innerHTML = "🚀 UPLOAD DATA BARU";
             } catch (error) {
                 console.error("Error: ", error);
                 alert("❌ GAGAL: " + error.message);
             } finally {
-                btnSimpan.innerHTML = "🚀 UPLOAD KE DATABASE";
                 btnSimpan.disabled = false;
             }
         });
